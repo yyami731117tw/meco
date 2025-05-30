@@ -195,10 +195,10 @@ export default function Home() {
               <Logo size="xl" className="mx-auto meco-float" />
               <div className="space-y-4">
                 <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-700">
-                  Meco
+                  陌生不等於距離，Match 也沒那麼難
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  溫暖的匿名聊天，真誠的心靈交流
+                  在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。
                 </p>
               </div>
             </div>

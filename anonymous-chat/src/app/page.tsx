@@ -39,6 +39,8 @@ export default function Home() {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
   const [imageToSend, setImageToSend] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+  const [previewImg, setPreviewImg] = useState<string | null>(null);
 
   // 保存聊天狀態到localStorage
   const saveChatState = (messages: Message[], status: string, partnerLeft: boolean = false, roomId: string | null = null) => {
@@ -356,10 +358,20 @@ export default function Home() {
       setImageError(null);
       const reader = new FileReader();
       reader.onload = (event) => {
-        setImageToSend(event.target?.result as string);
+        setPreviewImg(event.target?.result as string); // 先進入預覽視窗
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  // 確認發送圖片
+  const confirmSendImage = () => {
+    setImageToSend(previewImg);
+    setPreviewImg(null);
+  };
+  // 取消發送圖片
+  const cancelSendImage = () => {
+    setPreviewImg(null);
   };
 
   // 開始配對
@@ -564,7 +576,7 @@ export default function Home() {
 
       {/* 聊天區域 - 佔滿剩餘空間 */}
       <div className="flex-1 flex flex-col px-4 lg:px-6">
-        <div className="meco-container max-w-4xl flex-1 flex flex-col">
+        <div className="meco-container max-w-4xl flex-1 flex flex-col sm:px-0 px-0">
           {/* 訊息列表 */}
           <div className="flex-1 overflow-y-auto space-y-4 pb-6">
             {messages.length === 0 ? (
@@ -595,8 +607,8 @@ export default function Home() {
                     message.isSystem 
                       ? ''
                       : message.isSelf 
-                        ? 'meco-chat-bubble-self ml-0 mr-2 sm:mr-4'
-                        : 'meco-chat-bubble-other mr-0 ml-2 sm:ml-4'
+                        ? 'meco-chat-bubble-self max-w-[90%] ml-0 mr-1 sm:mr-4'
+                        : 'meco-chat-bubble-other max-w-[90%] mr-0 ml-1 sm:ml-4'
                   }>
                     <p className={`mb-1 ${message.isSystem ? 'text-red-600 font-medium text-sm' : ''}`}>
                       {message.text}
@@ -607,7 +619,8 @@ export default function Home() {
                         <img 
                           src={message.imageUrl} 
                           alt="圖片訊息" 
-                          className="max-w-[200px] max-h-[200px] rounded-xl mt-1 border shadow-md"
+                          className="max-w-[200px] max-h-[200px] rounded-xl mt-1 border shadow-md cursor-pointer hover:opacity-80 transition"
+                          onClick={() => setLightboxImg(message.imageUrl!)}
                           onError={e => {
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
@@ -620,7 +633,7 @@ export default function Home() {
                             }
                           }}
                         />
-                        <span className="text-xs text-gray-400 mt-1 flex items-center gap-1">🖼️ <span>圖片</span></span>
+                        <span className="text-xs text-gray-400 mt-1">圖片</span>
                       </div>
                     )}
                     {!message.isSystem && (
@@ -656,7 +669,7 @@ export default function Home() {
         <div className="meco-container max-w-4xl">
           <div className="meco-chat-input-container sm:mx-0 mx-[-1rem]">
             <form onSubmit={sendMessage} className="flex gap-3 items-center">
-              <label className="cursor-pointer meco-button-secondary p-2 rounded-full flex items-center justify-center w-9 h-9 min-w-0 min-h-0" title="上傳圖片">
+              <label className="cursor-pointer bg-white border border-blue-200 p-2 rounded-full flex items-center justify-center w-9 h-9 min-w-0 min-h-0 shadow hover:bg-blue-50 transition" title="上傳圖片">
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/gif,image/webp"
@@ -664,21 +677,20 @@ export default function Home() {
                   onChange={handleImageChange}
                 />
                 {/* SVG 相機圖示 */}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#2563eb" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 19.5V6.75A2.25 2.25 0 014.5 4.5h2.379a2.25 2.25 0 012.12-1.5h2.002a2.25 2.25 0 012.12 1.5H19.5a2.25 2.25 0 012.25 2.25v12.75a2.25 2.25 0 01-2.25 2.25H4.5A2.25 2.25 0 012.25 19.5z" />
                   <circle cx="12" cy="13" r="3.5" />
                 </svg>
               </label>
-              {imageToSend && (
-                <div className="relative group">
-                  <img src={imageToSend} alt="預覽" className="w-12 h-12 object-cover rounded-xl border shadow-lg transition-transform group-hover:scale-110" />
-                  <button type="button" onClick={() => setImageToSend(null)}
-                    className="absolute -top-2 -right-2 bg-white rounded-full shadow p-1 text-xs border border-gray-200 hover:bg-red-100 transition-colors">
-                    {/* SVG 關閉圖示 */}
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-gray-500">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+              {previewImg && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                  <div className="bg-white rounded-2xl p-6 shadow-2xl flex flex-col items-center max-w-[90vw]">
+                    <img src={previewImg} alt="預覽" className="max-w-[60vw] max-h-[60vh] rounded-xl border mb-4" />
+                    <div className="flex gap-4 mt-2">
+                      <button onClick={confirmSendImage} className="meco-button-primary px-8">發送</button>
+                      <button onClick={cancelSendImage} className="meco-button-secondary px-8">取消</button>
+                    </div>
+                  </div>
                 </div>
               )}
               {imageError && (
@@ -723,6 +735,13 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Lightbox 圖片放大預覽 */}
+      {lightboxImg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setLightboxImg(null)}>
+          <img src={lightboxImg} alt="放大圖片" className="max-w-[90vw] max-h-[80vh] rounded-xl shadow-2xl border-2 border-white" />
         </div>
       )}
     </div>

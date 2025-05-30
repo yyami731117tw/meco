@@ -1,26 +1,171 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 主要色彩方案 */
+  --primary-blue: #A5C8F7;      /* 暖粉藍 */
+  --cream-white: #FDF9F6;       /* 米白 */
+  --warm-amber: #FFBF69;        /* 溫暖琥珀色 */
+  
+  /* 漸變背景 */
+  --bg-gradient-light: linear-gradient(135deg, #FDF9F6 0%, #F0F8FF 50%, #E8F4FD 100%);
+  --bg-gradient-dark: linear-gradient(135deg, #1a1b23 0%, #2d3748 50%, #1a202c 100%);
+  
+  /* 卡片背景 */
+  --card-bg-light: rgba(253, 249, 246, 0.8);
+  --card-bg-dark: rgba(26, 27, 35, 0.8);
+  
+  /* 文字顏色 */
+  --text-primary-light: #2d3748;
+  --text-primary-dark: #f7fafc;
+  --text-secondary-light: #4a5568;
+  --text-secondary-dark: #cbd5e0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background: var(--bg-gradient-light);
+    min-height: 100vh;
+    transition: all 0.3s ease;
+  }
+  
+  .dark body {
+    background: var(--bg-gradient-dark);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* 自定義按鈕樣式 */
+  .btn-primary {
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg;
+    background: linear-gradient(45deg, #A5C8F7, #87ceeb);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(45deg, #87ceeb, #A5C8F7);
+    box-shadow: 0 8px 25px rgba(165, 200, 247, 0.4);
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg;
+    background: linear-gradient(45deg, #FFBF69, #FFD23F);
+    color: white;
+  }
+  
+  .btn-secondary:hover {
+    background: linear-gradient(45deg, #FFD23F, #FFBF69);
+    box-shadow: 0 8px 25px rgba(255, 191, 105, 0.4);
+  }
+  
+  .btn-danger {
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg;
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background: linear-gradient(45deg, #ff8e8e, #ff6b6b);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+  }
+  
+  /* 卡片樣式 */
+  .card-glass {
+    background: var(--card-bg-light);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .card-glass {
+    background: var(--card-bg-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* 訊息氣泡 */
+  .message-bubble-self {
+    background: linear-gradient(135deg, #A5C8F7, #87ceeb);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 4px 12px rgba(165, 200, 247, 0.3);
+  }
+  
+  .message-bubble-other {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary-light);
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .message-bubble-other {
+    background: rgba(45, 55, 72, 0.9);
+    color: var(--text-primary-dark);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* 動畫效果 */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+  
+  .pulse-gentle {
+    animation: pulseGentle 2s infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseGentle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* 自定義滾動條 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #A5C8F7, #87ceeb);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #87ceeb, #A5C8F7);
 }

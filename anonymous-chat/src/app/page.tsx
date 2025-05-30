@@ -192,7 +192,7 @@ export default function Home() {
         <div className="meco-container">
           <div className="text-center space-y-12 max-w-2xl mx-auto meco-fade-in">
             <div className="space-y-8">
-              <Logo size="xl" className="mx-auto meco-float" style={{ transform: 'scale(1.5)' }} />
+              <Logo size="xl" className="mx-auto meco-float" style={{ transform: 'scale(2)' }} />
               <div className="space-y-6">
                 <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-700">
                   Meco
@@ -227,7 +227,7 @@ export default function Home() {
                         className="meco-button-primary flex-1"
                         disabled={!isOnline}
                       >
-                        ❤️ {isOnline ? '開始聊天' : '服務維護中'}
+                        {isOnline ? '開始聊天' : '服務維護中'}
                       </button>
                     </div>
                   </div>
@@ -237,7 +237,7 @@ export default function Home() {
                     className="meco-button-primary w-full text-lg py-4"
                     disabled={!isOnline}
                   >
-                    ❤️ {isOnline ? '開始聊天' : '連線中...'}
+                    {isOnline ? '開始聊天' : '連線中...'}
                   </button>
                 )}
               </div>
@@ -268,11 +268,6 @@ export default function Home() {
                       正在為您配對志趣相投的朋友...
                     </p>
                   </div>
-                </div>
-                
-                <div className="meco-status meco-status-waiting justify-center">
-                  <div className="w-2 h-2 rounded-full bg-current"></div>
-                  <span>配對中</span>
                 </div>
 
                 <button 

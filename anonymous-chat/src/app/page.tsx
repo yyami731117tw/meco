@@ -1,103 +1,216 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { io, Socket } from 'socket.io-client';
+
+interface Message {
+  id: string;
+  text: string;
+  isSelf: boolean;
+  timestamp: number;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'waiting' | 'matched' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // 初始化 Socket.IO 連線
+  useEffect(() => {
+    const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    socketInstance.on('connect', () => {
+      console.log('已連線到伺服器');
+      setStatus('idle');
+    });
+
+    socketInstance.on('disconnect', () => {
+      console.log('與伺服器斷開連線');
+      setStatus('error');
+      setErrorMessage('與伺服器斷開連線，正在嘗試重新連線...');
+    });
+
+    socketInstance.on('waiting', () => {
+      setStatus('waiting');
+      setErrorMessage('');
+    });
+
+    socketInstance.on('matched', ({ partnerId }) => {
+      setStatus('matched');
+      setErrorMessage('');
+      setMessages([]); // 清空舊訊息
+    });
+
+    socketInstance.on('message', (message: Message) => {
+      setMessages(prev => [...prev, message]);
+    });
+
+    socketInstance.on('partner_left', () => {
+      setStatus('idle');
+      setErrorMessage('對方已離開聊天室');
+    });
+
+    socketInstance.on('error', (error: string) => {
+      setErrorMessage(error);
+    });
+
+    setSocket(socketInstance);
+
+    return () => {
+      socketInstance.close();
+    };
+  }, []);
+
+  // 自動滾動到最新訊息
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // 發送訊息
+  const sendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputMessage.trim() || !socket) return;
+
+    const message = {
+      id: Date.now().toString(),
+      text: inputMessage,
+      isSelf: true,
+      timestamp: Date.now(),
+    };
+
+    socket.emit('message', message);
+    setInputMessage('');
+  };
+
+  // 開始配對
+  const startMatching = () => {
+    if (!socket) return;
+    socket.emit('join');
+    setStatus('waiting');
+  };
+
+  // 離開聊天室
+  const leaveChat = () => {
+    if (!socket) return;
+    socket.emit('leave');
+    setStatus('idle');
+    setMessages([]);
+  };
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+      {/* 狀態列 */}
+      <div className="bg-white dark:bg-gray-800 p-4 shadow-md">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <h1 className="text-xl font-bold text-gray-800 dark:text-white">匿名聊天</h1>
+          <div className="flex items-center gap-4">
+            {status === 'matched' && (
+              <button
+                onClick={leaveChat}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+              >
+                離開聊天
+              </button>
+            )}
+            {status === 'idle' && (
+              <button
+                onClick={startMatching}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                開始配對
+              </button>
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      {/* 狀態提示 */}
+      {errorMessage && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+          <p>{errorMessage}</p>
+        </div>
+      )}
+
+      {/* 聊天室 */}
+      <div className="flex-1 overflow-hidden">
+        {status === 'waiting' ? (
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-300">正在尋找聊天對象...</p>
+            </div>
+          </div>
+        ) : status === 'matched' ? (
+          <div className="h-full flex flex-col">
+            {/* 訊息列表 */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.isSelf ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[70%] rounded-lg p-3 ${
+                      message.isSelf
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white'
+                    }`}
+                  >
+                    <p>{message.text}</p>
+                    <p className="text-xs mt-1 opacity-70">
+                      {new Date(message.timestamp).toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* 輸入框 */}
+            <form onSubmit={sendMessage} className="p-4 bg-white dark:bg-gray-800 border-t">
+              <div className="max-w-4xl mx-auto flex gap-4">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="輸入訊息..."
+                  className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                >
+                  發送
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                歡迎來到匿名聊天
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-8">
+                點擊「開始配對」按鈕，開始與陌生人聊天
+              </p>
+              <button
+                onClick={startMatching}
+                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                開始配對
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

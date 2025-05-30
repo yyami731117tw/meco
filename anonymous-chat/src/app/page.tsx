@@ -105,54 +105,46 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-4">
-      {/* 主容器 */}
-      <div className="max-w-4xl mx-auto h-screen flex flex-col">
+    <div className="min-h-screen p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto space-y-6">
         
-        {/* 頂部導航欄 */}
-        <div className="card-glass p-6 mb-6 fade-in">
+        {/* 頂部導航 */}
+        <div className="card fade-in">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#A5C8F7] to-[#87ceeb] flex items-center justify-center">
-                <span className="text-white font-bold text-xl">💬</span>
+              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                <span className="text-xl">💬</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Meco Chat</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-300">安全匿名聊天平台</p>
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Meco</h1>
+                <p className="text-sm text-gray-500">匿名聊天平台</p>
               </div>
             </div>
             
-            {/* 狀態指示器 */}
-            <div className="flex items-center space-x-4">
-              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${
-                status === 'matched' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
-                status === 'waiting' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :
-                status === 'error' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
-                'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+            {/* 狀態與操作 */}
+            <div className="flex items-center gap-4">
+              <div className={`status-indicator ${
+                status === 'matched' ? 'status-online' :
+                status === 'waiting' ? 'status-waiting' :
+                'status-offline'
               }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  status === 'matched' ? 'bg-green-500 pulse-gentle' :
-                  status === 'waiting' ? 'bg-yellow-500 pulse-gentle' :
-                  status === 'error' ? 'bg-red-500' :
-                  'bg-gray-500'
-                }`}></div>
+                <div className="w-2 h-2 rounded-full bg-current"></div>
                 <span>
-                  {status === 'matched' ? '已配對' :
-                   status === 'waiting' ? '尋找中' :
+                  {status === 'matched' ? '已連線' :
+                   status === 'waiting' ? '配對中' :
                    status === 'error' ? '連線錯誤' :
-                   '待機中'}
+                   '離線'}
                 </span>
               </div>
               
-              {/* 操作按鈕 */}
               {status === 'matched' && (
-                <button onClick={leaveChat} className="btn-danger scale-in">
-                  離開聊天
+                <button onClick={leaveChat} className="btn btn-secondary">
+                  斷開連線
                 </button>
               )}
               {status === 'idle' && (
-                <button onClick={startMatching} className="btn-primary scale-in">
-                  開始配對
+                <button onClick={startMatching} className="btn btn-primary">
+                  開始聊天
                 </button>
               )}
             </div>
@@ -161,78 +153,65 @@ export default function Home() {
 
         {/* 錯誤提示 */}
         {errorMessage && (
-          <div className="card-glass border-l-4 border-[#FFBF69] p-4 mb-6 fade-in">
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 rounded-full bg-[#FFBF69] flex items-center justify-center">
-                <span className="text-white text-sm">⚠</span>
-              </div>
-              <p className="text-gray-700 dark:text-gray-300">{errorMessage}</p>
-            </div>
+          <div className="card border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
+            <p className="text-yellow-800 dark:text-yellow-200">{errorMessage}</p>
           </div>
         )}
 
-        {/* 主要內容區域 */}
-        <div className="flex-1 card-glass p-6 overflow-hidden">
+        {/* 主要內容 */}
+        <div className="card h-[600px] flex flex-col">
           {status === 'waiting' ? (
-            // 等待配對畫面
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center space-y-8 fade-in">
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#A5C8F7] to-[#87ceeb] mx-auto flex items-center justify-center pulse-gentle">
-                    <div className="w-24 h-24 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
-                      <span className="text-4xl">🔍</span>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 rounded-full border-4 border-[#A5C8F7] border-opacity-30 animate-spin"></div>
+            // 等待配對
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center space-y-6 fade-in">
+                <div className="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">🔍</span>
                 </div>
-                <div className="space-y-4">
-                  <h2 className="text-3xl font-bold text-gray-800 dark:text-white">正在尋找聊天對象</h2>
-                  <p className="text-lg text-gray-600 dark:text-gray-300">請稍候，我們正在為您匹配合適的聊天夥伴...</p>
-                  <div className="flex justify-center space-x-1">
-                    <div className="w-2 h-2 bg-[#A5C8F7] rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-[#A5C8F7] rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-[#A5C8F7] rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                  </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+                    尋找聊天對象中
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400">正在為您匹配合適的聊天夥伴...</p>
+                </div>
+                <div className="loading-dots">
+                  <div className="loading-dot"></div>
+                  <div className="loading-dot"></div>
+                  <div className="loading-dot"></div>
                 </div>
               </div>
             </div>
           ) : status === 'matched' ? (
-            // 聊天畫面
-            <div className="h-full flex flex-col">
+            // 聊天界面
+            <>
               {/* 聊天頭部 */}
-              <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700 mb-4">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FFBF69] to-[#FFD23F] flex items-center justify-center">
-                    <span className="text-white font-bold">👤</span>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                    <span className="text-sm">👤</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-800 dark:text-white">匿名用戶</h3>
-                    <p className="text-sm text-green-500">線上</p>
+                    <h3 className="font-medium text-gray-900 dark:text-white">匿名用戶</h3>
+                    <p className="text-xs text-green-500">在線</p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  已連線 • 端到端加密
-                </div>
+                <div className="text-xs text-gray-500">端到端加密</div>
               </div>
 
-              {/* 訊息列表 */}
-              <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
+              {/* 訊息區域 */}
+              <div className="flex-1 overflow-y-auto py-4 space-y-4">
                 {messages.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A5C8F7] to-[#87ceeb] mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-2xl">💭</span>
+                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3">
+                      <span className="text-lg">💭</span>
                     </div>
-                    <p className="text-gray-500 dark:text-gray-400">開始對話吧！說聲哈囉～</p>
+                    <p className="text-gray-500">開始對話吧...</p>
                   </div>
                 ) : (
                   messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.isSelf ? 'justify-end' : 'justify-start'} fade-in`}
-                    >
-                      <div className={`max-w-[75%] p-4 ${message.isSelf ? 'message-bubble-self' : 'message-bubble-other'}`}>
+                    <div key={message.id} className={`flex ${message.isSelf ? 'justify-end' : 'justify-start'}`}>
+                      <div className={message.isSelf ? 'message-self' : 'message-other'}>
                         <p className="break-words">{message.text}</p>
-                        <p className="text-xs mt-2 opacity-70">
+                        <p className="text-xs mt-1 opacity-70">
                           {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -243,73 +222,67 @@ export default function Home() {
               </div>
 
               {/* 輸入區域 */}
-              <form onSubmit={sendMessage} className="flex space-x-3">
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="輸入訊息..."
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A5C8F7] focus:border-transparent bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300"
-                  />
-                </div>
+              <form onSubmit={sendMessage} className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="輸入訊息..."
+                  className="input flex-1"
+                />
                 <button
                   type="submit"
                   disabled={!inputMessage.trim()}
-                  className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="btn btn-primary disabled:opacity-50"
                 >
-                  發送 📤
+                  發送
                 </button>
               </form>
-            </div>
+            </>
           ) : (
-            // 歡迎畫面
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center space-y-8 fade-in">
-                <div className="relative">
-                  <div className="w-40 h-40 rounded-full bg-gradient-to-br from-[#A5C8F7] via-[#87ceeb] to-[#FFBF69] mx-auto p-1">
-                    <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
-                      <span className="text-6xl">💬</span>
-                    </div>
-                  </div>
+            // 歡迎頁面
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center space-y-8 fade-in max-w-lg">
+                <div className="w-20 h-20 mx-auto bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center">
+                  <span className="text-3xl">💬</span>
                 </div>
-                <div className="space-y-6">
-                  <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
-                    歡迎來到 <span className="gradient-text">Meco Chat</span>
+                
+                <div className="space-y-4">
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                    歡迎來到 <span className="text-gradient">Meco</span>
                   </h1>
-                  <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                    在這裡，您可以與來自世界各地的陌生人進行安全、匿名的對話。
-                    我們重視您的隱私，所有對話都是加密的。
+                  <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    與來自世界各地的陌生人進行安全、匿名的對話。我們重視您的隱私，所有對話都經過加密保護。
                   </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12">
-                    <div className="text-center space-y-3">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A5C8F7] to-[#87ceeb] mx-auto flex items-center justify-center">
-                        <span className="text-2xl">🔒</span>
-                      </div>
-                      <h3 className="font-semibold text-gray-800 dark:text-white">完全匿名</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">無需註冊，保護您的身份</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-8">
+                  <div className="text-center space-y-2">
+                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+                      <span className="text-lg">🔒</span>
                     </div>
-                    <div className="text-center space-y-3">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FFBF69] to-[#FFD23F] mx-auto flex items-center justify-center">
-                        <span className="text-2xl">⚡</span>
-                      </div>
-                      <h3 className="font-semibold text-gray-800 dark:text-white">即時配對</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">智能匹配系統，快速找到聊天夥伴</p>
-                    </div>
-                    <div className="text-center space-y-3">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#87ceeb] to-[#A5C8F7] mx-auto flex items-center justify-center">
-                        <span className="text-2xl">🛡️</span>
-                      </div>
-                      <h3 className="font-semibold text-gray-800 dark:text-white">安全對話</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">端到端加密，內容過濾保護</p>
-                    </div>
+                    <h3 className="font-medium text-gray-900 dark:text-white">完全匿名</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">無需註冊帳號</p>
                   </div>
-                  <div className="pt-8">
-                    <button onClick={startMatching} className="btn-primary text-lg px-8 py-4">
-                      🚀 開始聊天
-                    </button>
+                  <div className="text-center space-y-2">
+                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+                      <span className="text-lg">⚡</span>
+                    </div>
+                    <h3 className="font-medium text-gray-900 dark:text-white">即時配對</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">快速找到聊天夥伴</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+                      <span className="text-lg">🛡️</span>
+                    </div>
+                    <h3 className="font-medium text-gray-900 dark:text-white">安全對話</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">端到端加密</p>
                   </div>
                 </div>
+
+                <button onClick={startMatching} className="btn btn-primary text-lg px-8 py-3">
+                  開始聊天
+                </button>
               </div>
             </div>
           )}
@@ -318,3 +291,4 @@ export default function Home() {
     </div>
   );
 }
+

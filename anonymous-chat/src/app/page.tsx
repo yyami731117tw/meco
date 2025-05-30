@@ -44,7 +44,7 @@ export default function Home() {
   const saveChatState = (messages: Message[], status: string, partnerLeft: boolean = false, roomId: string | null = null) => {
     if (typeof window !== 'undefined') {
       const chatState = {
-        messages,
+        messages: messages.map(m => ({ ...m })), // isRead 狀態也存進去
         status,
         partnerLeft,
         roomId,
@@ -66,7 +66,7 @@ export default function Home() {
           const oneDay = 24 * 60 * 60 * 1000;
           
           if (now - chatState.timestamp < oneDay) {
-            setMessages(chatState.messages || []);
+            setMessages(chatState.messages || []); // isRead 狀態會還原
             setRoomId(chatState.roomId);
             if (chatState.status === 'matched') {
               setStatus('matched');
@@ -236,12 +236,15 @@ export default function Home() {
       });
 
       socketInstance.on('message', (message: Message) => {
-        setMessages(prev => [...prev, message]);
-        
-        // 如果是對方的訊息，自動發送已讀確認
-        if (!message.isSelf && !message.isSystem) {
-          socketInstance.emit('message_read', message.id);
-        }
+        setMessages(prev => {
+          const newMessages = [...prev, message];
+          // 自動發送所有未讀訊息的已讀確認
+          const unread = newMessages.filter(m => !m.isSelf && !m.isSystem && !m.isRead);
+          unread.forEach(m => {
+            socketInstance.emit('message_read', m.id);
+          });
+          return newMessages;
+        });
       });
 
       socketInstance.on('message_read_confirm', (messageId: string) => {
@@ -601,7 +604,22 @@ export default function Home() {
                     {/* 顯示圖片訊息 */}
                     {message.imageUrl && (
                       <div className="flex flex-col items-start">
-                        <img src={message.imageUrl} alt="圖片訊息" className="max-w-[200px] max-h-[200px] rounded-xl mt-1 border shadow-md" />
+                        <img 
+                          src={message.imageUrl} 
+                          alt="圖片訊息" 
+                          className="max-w-[200px] max-h-[200px] rounded-xl mt-1 border shadow-md"
+                          onError={e => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent && !parent.querySelector('.img-error-msg')) {
+                              const msg = document.createElement('span');
+                              msg.className = 'img-error-msg text-xs text-red-400 mt-1';
+                              msg.innerText = '圖片已失效';
+                              parent.appendChild(msg);
+                            }
+                          }}
+                        />
                         <span className="text-xs text-gray-400 mt-1 flex items-center gap-1">🖼️ <span>圖片</span></span>
                       </div>
                     )}
@@ -636,9 +654,9 @@ export default function Home() {
       {/* 輸入區域 - 固定在底部 */}
       <div className="p-4 lg:p-6">
         <div className="meco-container max-w-4xl">
-          <div className="meco-chat-input-container">
+          <div className="meco-chat-input-container sm:mx-0 mx-[-1rem]">
             <form onSubmit={sendMessage} className="flex gap-3 items-center">
-              <label className="cursor-pointer meco-button-secondary px-3 py-2 flex items-center" title="上傳圖片">
+              <label className="cursor-pointer meco-button-secondary p-2 rounded-full flex items-center justify-center w-9 h-9 min-w-0 min-h-0" title="上傳圖片">
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/gif,image/webp"
@@ -646,7 +664,7 @@ export default function Home() {
                   onChange={handleImageChange}
                 />
                 {/* SVG 相機圖示 */}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-blue-500">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 19.5V6.75A2.25 2.25 0 014.5 4.5h2.379a2.25 2.25 0 012.12-1.5h2.002a2.25 2.25 0 012.12 1.5H19.5a2.25 2.25 0 012.25 2.25v12.75a2.25 2.25 0 01-2.25 2.25H4.5A2.25 2.25 0 012.25 19.5z" />
                   <circle cx="12" cy="13" r="3.5" />
                 </svg>

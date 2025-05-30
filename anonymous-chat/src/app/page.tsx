@@ -274,9 +274,9 @@ export default function Home() {
                     <div className="meco-loading-dot"></div>
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-2xl font-semibold text-gray-700">尋找聊天夥伴</h3>
+                    <h3 className="text-2xl font-semibold text-gray-700">配對中...</h3>
                     <p className="text-gray-600">
-                      正在為您配對志趣相投的朋友...
+                      別擔心，Meco 讓 Match 變得簡單又溫柔
                     </p>
                   </div>
                 </div>
@@ -312,13 +312,6 @@ export default function Home() {
               </div>
               
               <div className="flex items-center gap-4">
-                <div className={`meco-status ${
-                  status === 'matched' && isOnline ? 'meco-status-online' : 'meco-status-offline'
-                }`}>
-                  <div className="w-2 h-2 rounded-full bg-current"></div>
-                  <span>{status === 'matched' && isOnline ? '已連線' : '離線'}</span>
-                </div>
-                
                 {status === 'matched' && (
                   <button onClick={leaveChat} className="meco-button-secondary text-sm">
                     離開聊天

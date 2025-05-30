@@ -13,7 +13,7 @@ export default function Custom404() {
         </div>
         
         <div className="space-y-6">
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-[#A5C8F7] to-[#FFBF69] bg-clip-text text-transparent">
+          <h1 className="text-6xl font-bold gradient-text">
             404
           </h1>
           <h2 className="text-3xl font-bold text-gray-800 dark:text-white">

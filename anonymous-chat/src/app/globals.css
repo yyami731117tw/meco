@@ -1,7 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* 自定義 CSS 變數 */
 :root {
   /* 主要色彩方案 */
   --primary-blue: #A5C8F7;      /* 暖粉藍 */
@@ -15,109 +14,163 @@
   /* 卡片背景 */
   --card-bg-light: rgba(253, 249, 246, 0.8);
   --card-bg-dark: rgba(26, 27, 35, 0.8);
-  
-  /* 文字顏色 */
-  --text-primary-light: #2d3748;
-  --text-primary-dark: #f7fafc;
-  --text-secondary-light: #4a5568;
-  --text-secondary-dark: #cbd5e0;
 }
 
-@layer base {
-  body {
-    background: var(--bg-gradient-light);
-    min-height: 100vh;
-    transition: all 0.3s ease;
-  }
-  
-  .dark body {
-    background: var(--bg-gradient-dark);
-  }
+/* 基礎樣式 */
+* {
+  box-sizing: border-box;
 }
 
-@layer components {
-  /* 自定義按鈕樣式 */
-  .btn-primary {
-    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg;
-    background: linear-gradient(45deg, #A5C8F7, #87ceeb);
-    color: white;
-  }
-  
-  .btn-primary:hover {
-    background: linear-gradient(45deg, #87ceeb, #A5C8F7);
-    box-shadow: 0 8px 25px rgba(165, 200, 247, 0.4);
-  }
-  
-  .btn-secondary {
-    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg;
-    background: linear-gradient(45deg, #FFBF69, #FFD23F);
-    color: white;
-  }
-  
-  .btn-secondary:hover {
-    background: linear-gradient(45deg, #FFD23F, #FFBF69);
-    box-shadow: 0 8px 25px rgba(255, 191, 105, 0.4);
-  }
-  
-  .btn-danger {
-    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg;
-    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-    color: white;
-  }
-  
-  .btn-danger:hover {
-    background: linear-gradient(45deg, #ff8e8e, #ff6b6b);
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
-  }
-  
-  /* 卡片樣式 */
-  .card-glass {
-    background: var(--card-bg-light);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dark .card-glass {
-    background: var(--card-bg-dark);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* 訊息氣泡 */
-  .message-bubble-self {
-    background: linear-gradient(135deg, #A5C8F7, #87ceeb);
-    color: white;
-    border-radius: 18px 18px 4px 18px;
-    box-shadow: 0 4px 12px rgba(165, 200, 247, 0.3);
-  }
-  
-  .message-bubble-other {
-    background: rgba(255, 255, 255, 0.9);
-    color: var(--text-primary-light);
-    border-radius: 18px 18px 18px 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dark .message-bubble-other {
-    background: rgba(45, 55, 72, 0.9);
-    color: var(--text-primary-dark);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* 動畫效果 */
-  .fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-  }
-  
-  .scale-in {
-    animation: scaleIn 0.3s ease-out;
-  }
-  
-  .pulse-gentle {
-    animation: pulseGentle 2s infinite;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg-gradient-light);
+  min-height: 100vh;
+  transition: all 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.dark body {
+  background: var(--bg-gradient-dark);
+}
+
+/* 自定義按鈕樣式 */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  transform: scale(1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(45deg, #A5C8F7, #87ceeb);
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  background: linear-gradient(45deg, #87ceeb, #A5C8F7);
+  box-shadow: 0 8px 25px rgba(165, 200, 247, 0.4);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  transform: scale(1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(45deg, #FFBF69, #FFD23F);
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  transform: scale(1.05);
+  background: linear-gradient(45deg, #FFD23F, #FFBF69);
+  box-shadow: 0 8px 25px rgba(255, 191, 105, 0.4);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  transform: scale(1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  transform: scale(1.05);
+  background: linear-gradient(45deg, #ff8e8e, #ff6b6b);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+}
+
+/* 禁用狀態 */
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary:disabled:hover,
+.btn-secondary:disabled:hover,
+.btn-danger:disabled:hover {
+  transform: none;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* 玻璃卡片效果 */
+.card-glass {
+  background: var(--card-bg-light);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .card-glass {
+  background: var(--card-bg-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* 訊息氣泡 */
+.message-bubble-self {
+  background: linear-gradient(135deg, #A5C8F7, #87ceeb);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 0 4px 12px rgba(165, 200, 247, 0.3);
+}
+
+.message-bubble-other {
+  background: rgba(255, 255, 255, 0.9);
+  color: #2d3748;
+  border-radius: 18px 18px 18px 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .message-bubble-other {
+  background: rgba(45, 55, 72, 0.9);
+  color: #f7fafc;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 動畫效果 */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.pulse-gentle {
+  animation: pulseGentle 2s infinite;
 }
 
 @keyframes fadeIn {
@@ -168,4 +221,26 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(45deg, #87ceeb, #A5C8F7);
+}
+
+/* 漸變文字效果 */
+.gradient-text {
+  background: linear-gradient(45deg, #A5C8F7, #FFBF69);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* 確保焦點環正確顯示 */
+.focus\:ring-primary:focus {
+  --tw-ring-color: #A5C8F7;
+  box-shadow: 0 0 0 2px var(--tw-ring-color);
+}
+
+/* 輸入框樣式 */
+input[type="text"]:focus {
+  outline: none;
+  border-color: #A5C8F7;
+  box-shadow: 0 0 0 2px rgba(165, 200, 247, 0.3);
 }

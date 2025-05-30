@@ -275,7 +275,7 @@ export default function Home() {
                 </div>
                 <div className="space-y-6">
                   <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
-                    歡迎來到 <span className="bg-gradient-to-r from-[#A5C8F7] to-[#FFBF69] bg-clip-text text-transparent">Meco Chat</span>
+                    歡迎來到 <span className="gradient-text">Meco Chat</span>
                   </h1>
                   <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                     在這裡，您可以與來自世界各地的陌生人進行安全、匿名的對話。

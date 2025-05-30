@@ -11,6 +11,16 @@ interface Message {
   timestamp: number;
   isSystem?: boolean;
   isRead?: boolean;
+  imageUrl?: string;
+}
+
+interface Stats {
+  activeRooms: number;
+  totalUsers: number;
+  rooms: Array<{
+    roomId: string;
+    userCount: number;
+  }>;
 }
 
 export default function Home() {
@@ -23,6 +33,11 @@ export default function Home() {
   const [partnerLeft, setPartnerLeft] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const maxReconnectAttempts = 5;
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const [imageToSend, setImageToSend] = useState<string | null>(null);
 
   // 保存聊天狀態到localStorage
   const saveChatState = (messages: Message[], status: string, partnerLeft: boolean = false, roomId: string | null = null) => {
@@ -114,22 +129,48 @@ export default function Home() {
     }
   }, []);
 
+  // 檢查後端服務是否可用
+  const checkBackendHealth = async () => {
+    try {
+      await fetch(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
+        method: 'HEAD',
+        mode: 'no-cors'
+      });
+      return true;
+    } catch {
+      console.log('後端服務暫時不可用');
+      return false;
+    }
+  };
+
+  // 重新連接功能
+  const reconnect = () => {
+    if (reconnectAttempts >= maxReconnectAttempts) {
+      setErrorMessage('重連次數已達上限，請重新整理頁面');
+      return;
+    }
+
+    setStatus('connecting');
+    setErrorMessage('');
+    setReconnectAttempts(prev => prev + 1);
+
+    // 清除之前的重連計時器
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    // 設置新的重連計時器
+    reconnectTimeoutRef.current = setTimeout(() => {
+      if (socket) {
+        socket.connect();
+      } else {
+        window.location.reload(); // 如果沒有 socket 實例，重新整理頁面
+      }
+    }, 1000 * Math.min(reconnectAttempts + 1, 5)); // 指數退避，最多等待5秒
+  };
+
   // 初始化 Socket.IO 連線
   useEffect(() => {
-    // 檢查後端服務是否可用
-    const checkBackendHealth = async () => {
-      try {
-        await fetch(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
-          method: 'HEAD',
-          mode: 'no-cors'
-        });
-        return true;
-      } catch {
-        console.log('後端服務暫時不可用');
-        return false;
-      }
-    };
-
     const initializeSocket = async () => {
       const backendAvailable = await checkBackendHealth();
       
@@ -153,6 +194,11 @@ export default function Home() {
         setStatus('idle');
         setIsOnline(true);
         setErrorMessage('');
+        setReconnectAttempts(0); // 重置重連次數
+      });
+
+      socketInstance.on('stats_update', (newStats: Stats) => {
+        setStats(newStats);
       });
 
       socketInstance.on('disconnect', (reason) => {
@@ -248,6 +294,9 @@ export default function Home() {
     initializeSocket();
 
     return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
       if (socket) {
         socket.close();
       }
@@ -269,17 +318,33 @@ export default function Home() {
   // 發送訊息
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputMessage.trim() || !socket || !isOnline) return;
+    if ((!inputMessage.trim() && !imageToSend) || !socket || !isOnline) return;
 
-    const message = {
+    const message: Message = {
       id: Date.now().toString(),
       text: inputMessage,
       isSelf: true,
       timestamp: Date.now(),
     };
+    if (imageToSend) {
+      message.imageUrl = imageToSend;
+    }
 
     socket.emit('message', message);
     setInputMessage('');
+    setImageToSend(null);
+  };
+
+  // 圖片上傳狀態
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImageToSend(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // 開始配對
@@ -304,11 +369,31 @@ export default function Home() {
     clearChatState();
   };
 
-  // 重新連線
-  const reconnect = () => {
-    setStatus('connecting');
-    setErrorMessage('');
-    window.location.reload();
+  // 在聊天頁面頂部添加統計信息
+  const renderStats = () => {
+    if (!stats) return null;
+    
+    return (
+      <div className="meco-card bg-blue-50/80 border-blue-200 mb-4">
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              <span className="text-blue-700">在線用戶: {stats.totalUsers}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-green-700">活躍聊天室: {stats.activeRooms}</span>
+            </div>
+          </div>
+          {!isOnline && (
+            <button onClick={reconnect} className="meco-button-secondary text-xs px-3 py-1">
+              重新連線 ({reconnectAttempts}/{maxReconnectAttempts})
+            </button>
+          )}
+        </div>
+      </div>
+    );
   };
 
   if (status === 'connecting') {
@@ -440,13 +525,13 @@ export default function Home() {
       {/* 頂部狀態欄 */}
       <div className="p-4 lg:p-6">
         <div className="meco-container max-w-4xl">
+          {renderStats()}
           <div className="meco-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Logo size="md" />
-                <div>
+                <div className="hidden sm:block">
                   <h2 className="font-semibold text-gray-700">Meco</h2>
-                  <p className="text-sm text-gray-600">匿名聊天室</p>
                 </div>
               </div>
               
@@ -470,9 +555,6 @@ export default function Home() {
             {messages.length === 0 ? (
               <div className="text-center py-16">
                 <div className="space-y-6">
-                  <div className="meco-icon-container meco-icon-primary mx-auto">
-                    <span>✨</span>
-                  </div>
                   <div className="meco-card max-w-md mx-auto">
                     <div className="space-y-4">
                       <div>
@@ -489,19 +571,25 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            ) : (
+            ) :
               messages.map((message) => (
-                <div key={message.id} className={`flex ${
+                <div key={message.id} className={`flex w-full ${
                   message.isSystem ? 'justify-center' : message.isSelf ? 'justify-end' : 'justify-start'
                 }`}>
                   <div className={
                     message.isSystem 
-                      ? 'meco-system-message' 
+                      ? ''
                       : message.isSelf 
-                        ? 'meco-chat-bubble-self' 
-                        : 'meco-chat-bubble-other'
+                        ? 'meco-chat-bubble-self ml-auto' 
+                        : 'meco-chat-bubble-other mr-auto'
                   }>
-                    <p className="mb-1">{message.text}</p>
+                    <p className={`mb-1 ${message.isSystem ? 'text-red-600 font-medium text-sm' : ''}`}>
+                      {message.text}
+                    </p>
+                    {/* 顯示圖片訊息 */}
+                    {message.imageUrl && (
+                      <img src={message.imageUrl} alt="圖片訊息" className="max-w-[200px] max-h-[200px] rounded-xl mt-1 border" />
+                    )}
                     {!message.isSystem && (
                       <div className="flex items-center justify-between">
                         <p className="text-xs opacity-60">
@@ -524,7 +612,7 @@ export default function Home() {
                   </div>
                 </div>
               ))
-            )}
+            }
             <div ref={messagesEndRef} />
           </div>
         </div>
@@ -534,7 +622,22 @@ export default function Home() {
       <div className="p-4 lg:p-6">
         <div className="meco-container max-w-4xl">
           <div className="meco-chat-input-container">
-            <form onSubmit={sendMessage} className="flex gap-3">
+            <form onSubmit={sendMessage} className="flex gap-3 items-center">
+              <label className="cursor-pointer meco-button-secondary px-3 py-2 flex items-center" title="上傳圖片">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+                <span role="img" aria-label="圖片">🖼️</span>
+              </label>
+              {imageToSend && (
+                <div className="relative">
+                  <img src={imageToSend} alt="預覽" className="w-12 h-12 object-cover rounded-xl border" />
+                  <button type="button" onClick={() => setImageToSend(null)} className="absolute -top-2 -right-2 bg-white rounded-full shadow p-1 text-xs">✕</button>
+                </div>
+              )}
               <input
                 type="text"
                 value={inputMessage}
@@ -549,7 +652,7 @@ export default function Home() {
               />
               <button
                 type="submit"
-                disabled={!inputMessage.trim() || !isOnline || partnerLeft}
+                disabled={(!inputMessage.trim() && !imageToSend) || !isOnline || partnerLeft}
                 className="meco-button-primary px-6"
               >
                 發送

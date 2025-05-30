@@ -465,6 +465,25 @@ export default function Home() {
     return () => { socket.off('announcement', handler); };
   }, [socket]);
 
+  // 狀態：加密連線動畫
+  if (status === 'connecting' || status === 'waiting') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white">
+        <div className="flex flex-col items-center gap-8">
+          <div className="flex gap-2">
+            <span className="block w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
+            <span className="block w-3 h-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+            <span className="block w-3 h-3 bg-blue-200 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+          </div>
+          <div className="text-center">
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">正在建立加密連線...</h3>
+            <p className="text-gray-500 text-base">請稍候，Meco 正在為你配對安全的聊天對象</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (status === 'connecting') {
     return (
       <div className="min-h-screen p-6 lg:p-8 flex items-center justify-center">
@@ -629,22 +648,12 @@ export default function Home() {
           {/* 訊息列表 */}
           <div className="flex-1 overflow-y-auto space-y-4 pb-6">
             {messages.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="space-y-6">
-                  <div className="meco-card max-w-md mx-auto">
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-700 mb-2">加密連線完成，開始聊天吧！</h3>
-                          <p className="text-gray-600 text-sm">
-                            說聲哈囉，開始這段美好的相遇 ❤️
-                          </p>
-                      </div>
-                      <div className="flex items-center justify-center gap-2 text-green-600 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span>端對端加密已啟用</span>
-                      </div>
-                    </div>
-                  </div>
+              <div className="text-center py-16 flex flex-col items-center justify-center gap-6">
+                <h3 className="text-lg font-medium text-gray-700 mb-2">加密連線完成，開始聊天吧！</h3>
+                <p className="text-gray-600 text-base">說聲哈囉，開始這段美好的相遇 ❤️</p>
+                <div className="flex items-center justify-center gap-2 text-green-600 text-sm mt-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>端對端加密已啟用</span>
                 </div>
               </div>
             ) :
@@ -733,13 +742,13 @@ export default function Home() {
               </label>
               {/* 圖片發送前預覽視窗 */}
               {previewImg && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-                  <div className="bg-white rounded-2xl p-4 shadow-2xl flex flex-col items-center w-full max-w-none sm:max-w-[90vw]">
-                    <img src={previewImg} alt="預覽" className="w-full max-w-[360px] max-h-[60vh] rounded-xl border mb-4 object-contain" />
-                    <div className="flex flex-col gap-4 w-full mt-2">
-                      <button onClick={confirmSendImage} className="meco-button-primary w-full py-3 text-lg">發送</button>
-                      <button onClick={cancelSendImage} className="meco-button-secondary w-full py-3 text-lg">取消</button>
-                    </div>
+                <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60">
+                  <div className="flex-1 flex flex-col items-center justify-center w-full max-w-none sm:max-w-[90vw] px-2">
+                    <img src={previewImg} alt="預覽" className="w-auto max-w-full max-h-[60vh] rounded-xl border mb-4 object-contain mx-auto" />
+                  </div>
+                  <div className="w-full max-w-[400px] px-4 pb-6 flex flex-col gap-4">
+                    <button onClick={confirmSendImage} className="meco-button-primary w-full py-3 text-lg">發送</button>
+                    <button onClick={cancelSendImage} className="meco-button-secondary w-full py-3 text-lg">取消</button>
                   </div>
                 </div>
               )}
@@ -797,4 +806,13 @@ export default function Home() {
     </div>
   );
 }
+
+/* 加密連線動畫 bounce */
+<style jsx global>{`
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.animate-bounce { animation: bounce 1s infinite; }
+`}</style>
 

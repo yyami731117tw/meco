@@ -7,6 +7,33 @@ import { matchService } from './services/matchService'; // 導入 MatchService
 import { User } from './services/types'; // 導入 User 類型
 
 const app = express();
+
+// 設定 CORS 中間件
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
+
+// 健康檢查路由
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: '後端伺服器運行正常',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// API 狀態路由
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    service: 'meco-chat-backend',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {

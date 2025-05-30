@@ -174,8 +174,8 @@ export default function Home() {
                   <div className="meco-loading-dot"></div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-meco-dark">連線中</h3>
-                  <p className="text-meco-dark/70">正在連接聊天服務...</p>
+                  <h3 className="text-xl font-semibold text-gray-700">連線中</h3>
+                  <p className="text-gray-600">正在連接聊天服務...</p>
                 </div>
               </div>
             </div>
@@ -194,10 +194,10 @@ export default function Home() {
             <div className="space-y-8">
               <Logo size="xl" className="mx-auto meco-float" />
               <div className="space-y-4">
-                <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-meco-dark">
+                <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-700">
                   Meco
                 </h1>
-                <p className="text-xl text-meco-dark/70 leading-relaxed">
+                <p className="text-xl text-gray-600 leading-relaxed">
                   溫暖的匿名聊天，真誠的心靈交流
                 </p>
               </div>
@@ -212,8 +212,8 @@ export default function Home() {
                         <span>🔒</span>
                       </div>
                       <div className="text-left">
-                        <h3 className="font-semibold text-meco-dark">完全匿名</h3>
-                        <p className="text-sm text-meco-dark/60">保護隱私，自由表達真實想法</p>
+                        <h3 className="font-semibold text-gray-700">完全匿名</h3>
+                        <p className="text-sm text-gray-600">保護隱私，自由表達真實想法</p>
                       </div>
                     </div>
                   </div>
@@ -224,8 +224,8 @@ export default function Home() {
                         <span>⚡</span>
                       </div>
                       <div className="text-left">
-                        <h3 className="font-semibold text-meco-dark">即時配對</h3>
-                        <p className="text-sm text-meco-dark/60">智能匹配，快速找到聊天夥伴</p>
+                        <h3 className="font-semibold text-gray-700">即時配對</h3>
+                        <p className="text-sm text-gray-600">智能匹配，快速找到聊天夥伴</p>
                       </div>
                     </div>
                   </div>
@@ -236,8 +236,8 @@ export default function Home() {
                         <span>💬</span>
                       </div>
                       <div className="text-left">
-                        <h3 className="font-semibold text-meco-dark">安全對話</h3>
-                        <p className="text-sm text-meco-dark/60">端到端加密，溫暖安全交流</p>
+                        <h3 className="font-semibold text-gray-700">安全對話</h3>
+                        <p className="text-sm text-gray-600">端到端加密，溫暖安全交流</p>
                       </div>
                     </div>
                   </div>
@@ -297,8 +297,8 @@ export default function Home() {
                     <div className="meco-loading-dot"></div>
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-2xl font-semibold text-meco-dark">尋找聊天夥伴</h3>
-                    <p className="text-meco-dark/70">
+                    <h3 className="text-2xl font-semibold text-gray-700">尋找聊天夥伴</h3>
+                    <p className="text-gray-600">
                       正在為您配對志趣相投的朋友...
                     </p>
                   </div>
@@ -334,8 +334,8 @@ export default function Home() {
               <div className="flex items-center gap-4">
                 <Logo size="md" />
                 <div>
-                  <h2 className="font-semibold text-meco-dark">Meco</h2>
-                  <p className="text-sm text-meco-dark/60">匿名聊天室</p>
+                  <h2 className="font-semibold text-gray-700">Meco</h2>
+                  <p className="text-sm text-gray-600">匿名聊天室</p>
                 </div>
               </div>
               
@@ -368,8 +368,8 @@ export default function Home() {
                         <span>💭</span>
                       </div>
                       <div>
-                        <h3 className="text-lg font-medium text-meco-dark mb-2">開始對話</h3>
-                        <p className="text-meco-dark/60 text-sm">
+                        <h3 className="text-lg font-medium text-gray-700 mb-2">開始對話</h3>
+                        <p className="text-gray-600 text-sm">
                           說聲哈囉，開始這段美好的相遇 ❤️
                         </p>
                       </div>

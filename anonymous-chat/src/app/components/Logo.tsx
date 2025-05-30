@@ -12,9 +12,17 @@ export default function Logo({ size = 'md', className = '' }: LogoProps) {
   };
 
   return (
-    <div className={`${sizeClasses[size]} ${className} bg-meco-primary rounded-2xl flex items-center justify-center text-white font-bold relative overflow-hidden`}>
+    <div 
+      className={`${sizeClasses[size]} ${className} rounded-2xl flex items-center justify-center text-white font-bold relative overflow-hidden`}
+      style={{ background: '#9BB5D6' }}
+    >
       {/* 背景裝飾 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-meco-primary to-meco-accent"></div>
+      <div 
+        className="absolute inset-0" 
+        style={{ 
+          background: 'linear-gradient(135deg, #9BB5D6 0%, #7BA3D0 100%)' 
+        }}
+      ></div>
       
       {/* Logo 文字 */}
       <div className="relative z-10 flex items-center justify-center w-full h-full">

@@ -38,6 +38,7 @@ export default function Home() {
   const maxReconnectAttempts = 5;
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
   const [imageToSend, setImageToSend] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   // 保存聊天狀態到localStorage
   const saveChatState = (messages: Message[], status: string, partnerLeft: boolean = false, roomId: string | null = null) => {
@@ -339,6 +340,17 @@ export default function Home() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // 檢查檔案大小
+      if (file.size > 2 * 1024 * 1024) {
+        setImageError('圖片大小請勿超過 2MB');
+        return;
+      }
+      // 檢查檔案格式
+      if (!/^image\/(jpeg|png|gif|webp)$/.test(file.type)) {
+        setImageError('僅支援 jpg, png, gif, webp 格式');
+        return;
+      }
+      setImageError(null);
       const reader = new FileReader();
       reader.onload = (event) => {
         setImageToSend(event.target?.result as string);
@@ -580,15 +592,18 @@ export default function Home() {
                     message.isSystem 
                       ? ''
                       : message.isSelf 
-                        ? 'meco-chat-bubble-self ml-auto' 
-                        : 'meco-chat-bubble-other mr-auto'
+                        ? 'meco-chat-bubble-self ml-0 mr-2 sm:mr-4'
+                        : 'meco-chat-bubble-other mr-0 ml-2 sm:ml-4'
                   }>
                     <p className={`mb-1 ${message.isSystem ? 'text-red-600 font-medium text-sm' : ''}`}>
                       {message.text}
                     </p>
                     {/* 顯示圖片訊息 */}
                     {message.imageUrl && (
-                      <img src={message.imageUrl} alt="圖片訊息" className="max-w-[200px] max-h-[200px] rounded-xl mt-1 border" />
+                      <div className="flex flex-col items-start">
+                        <img src={message.imageUrl} alt="圖片訊息" className="max-w-[200px] max-h-[200px] rounded-xl mt-1 border shadow-md" />
+                        <span className="text-xs text-gray-400 mt-1 flex items-center gap-1">🖼️ <span>圖片</span></span>
+                      </div>
                     )}
                     {!message.isSystem && (
                       <div className="flex items-center justify-between">
@@ -626,17 +641,30 @@ export default function Home() {
               <label className="cursor-pointer meco-button-secondary px-3 py-2 flex items-center" title="上傳圖片">
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
                   className="hidden"
                   onChange={handleImageChange}
                 />
-                <span role="img" aria-label="圖片">🖼️</span>
+                {/* SVG 相機圖示 */}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-blue-500">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 19.5V6.75A2.25 2.25 0 014.5 4.5h2.379a2.25 2.25 0 012.12-1.5h2.002a2.25 2.25 0 012.12 1.5H19.5a2.25 2.25 0 012.25 2.25v12.75a2.25 2.25 0 01-2.25 2.25H4.5A2.25 2.25 0 012.25 19.5z" />
+                  <circle cx="12" cy="13" r="3.5" />
+                </svg>
               </label>
               {imageToSend && (
-                <div className="relative">
-                  <img src={imageToSend} alt="預覽" className="w-12 h-12 object-cover rounded-xl border" />
-                  <button type="button" onClick={() => setImageToSend(null)} className="absolute -top-2 -right-2 bg-white rounded-full shadow p-1 text-xs">✕</button>
+                <div className="relative group">
+                  <img src={imageToSend} alt="預覽" className="w-12 h-12 object-cover rounded-xl border shadow-lg transition-transform group-hover:scale-110" />
+                  <button type="button" onClick={() => setImageToSend(null)}
+                    className="absolute -top-2 -right-2 bg-white rounded-full shadow p-1 text-xs border border-gray-200 hover:bg-red-100 transition-colors">
+                    {/* SVG 關閉圖示 */}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-gray-500">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
+              )}
+              {imageError && (
+                <span className="text-red-500 text-xs ml-2">{imageError}</span>
               )}
               <input
                 type="text"

@@ -20,7 +20,94 @@ export default function Home() {
   const [status, setStatus] = useState<'idle' | 'waiting' | 'matched' | 'error' | 'connecting'>('connecting');
   const [errorMessage, setErrorMessage] = useState('');
   const [isOnline, setIsOnline] = useState(false);
+  const [partnerLeft, setPartnerLeft] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // 保存聊天狀態到localStorage
+  const saveChatState = (messages: Message[], status: string, partnerLeft: boolean = false) => {
+    if (typeof window !== 'undefined') {
+      const chatState = {
+        messages,
+        status,
+        partnerLeft,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('meco_chat_state', JSON.stringify(chatState));
+    }
+  };
+
+  // 從localStorage恢復聊天狀態
+  const restoreChatState = () => {
+    if (typeof window !== 'undefined') {
+      const savedState = localStorage.getItem('meco_chat_state');
+      if (savedState) {
+        try {
+          const chatState = JSON.parse(savedState);
+          // 檢查是否是最近的聊天（24小時內）
+          const now = Date.now();
+          const oneDay = 24 * 60 * 60 * 1000;
+          
+          if (now - chatState.timestamp < oneDay) {
+            setMessages(chatState.messages || []);
+            if (chatState.status === 'matched') {
+              setStatus('matched');
+            }
+            if (chatState.partnerLeft) {
+              setPartnerLeft(true);
+              setErrorMessage('對方已離開聊天，您可以繼續查看聊天記錄');
+            }
+            return true;
+          } else {
+            // 清除過期的聊天記錄
+            localStorage.removeItem('meco_chat_state');
+          }
+        } catch (error) {
+          console.error('無法恢復聊天狀態:', error);
+          localStorage.removeItem('meco_chat_state');
+        }
+      }
+    }
+    return false;
+  };
+
+  // 清除聊天狀態
+  const clearChatState = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('meco_chat_state');
+    }
+  };
+
+  // 處理瀏覽器關閉
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (status === 'matched' && messages.length > 0) {
+        // 如果正在聊天中，保存狀態
+        saveChatState(messages, status, partnerLeft);
+        
+        // 通知服務器用戶離開
+        if (socket) {
+          socket.emit('leave');
+        }
+      } else {
+        // 清除聊天狀態
+        clearChatState();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [status, messages, partnerLeft, socket]);
+
+  // 初始化時恢復聊天狀態
+  useEffect(() => {
+    const restored = restoreChatState();
+    if (!restored) {
+      setStatus('connecting');
+    }
+  }, []);
 
   // 初始化 Socket.IO 連線
   useEffect(() => {
@@ -90,6 +177,9 @@ export default function Home() {
         setStatus('matched');
         setErrorMessage('');
         setMessages([]);
+        setPartnerLeft(false);
+        // 清除之前的聊天記錄，開始新對話
+        clearChatState();
       });
 
       socketInstance.on('message', (message: Message) => {
@@ -116,9 +206,17 @@ export default function Home() {
           timestamp: Date.now(),
           isSystem: true
         };
-        setMessages(prev => [...prev, systemMessage]);
         
-        // 不自動跳轉，讓用戶自己決定何時離開
+        setMessages(prev => {
+          const newMessages = [...prev, systemMessage];
+          // 保存狀態，標記對方已離開
+          setTimeout(() => {
+            saveChatState(newMessages, 'matched', true);
+          }, 0);
+          return newMessages;
+        });
+        
+        setPartnerLeft(true);
         setErrorMessage('對方已離開聊天，您可以繼續查看聊天記錄');
       });
 
@@ -137,6 +235,13 @@ export default function Home() {
       }
     };
   }, []);
+
+  // 自動保存聊天記錄
+  useEffect(() => {
+    if (status === 'matched' && messages.length > 0) {
+      saveChatState(messages, status, partnerLeft);
+    }
+  }, [messages, status, partnerLeft]);
 
   // 自動滾動到最新訊息
   useEffect(() => {
@@ -175,6 +280,10 @@ export default function Home() {
     socket.emit('leave');
     setStatus('idle');
     setMessages([]);
+    setPartnerLeft(false);
+    setErrorMessage('');
+    // 清除本地存儲
+    clearChatState();
   };
 
   // 重新連線
@@ -353,7 +462,7 @@ export default function Home() {
                 <div className="text-center py-16">
                   <div className="space-y-4">
                     <div className="meco-icon-container meco-icon-primary mx-auto">
-                      <span>💭</span>
+                      <span>✨</span>
                     </div>
                     <div>
                       <h3 className="text-lg font-medium text-gray-700 mb-2">開始對話</h3>
@@ -409,13 +518,17 @@ export default function Home() {
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder={isOnline ? "輸入訊息..." : "連線中斷..."}
+                  placeholder={
+                    !isOnline ? "連線中斷..." 
+                    : partnerLeft ? "對方已離開聊天..." 
+                    : "輸入訊息..."
+                  }
                   className="meco-input flex-1"
-                  disabled={!isOnline}
+                  disabled={!isOnline || partnerLeft}
                 />
                 <button
                   type="submit"
-                  disabled={!inputMessage.trim() || !isOnline}
+                  disabled={!inputMessage.trim() || !isOnline || partnerLeft}
                   className="meco-button-primary px-6"
                 >
                   發送

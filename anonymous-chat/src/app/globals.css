@@ -1,34 +1,36 @@
 @import "tailwindcss";
 
-/* 現代簡約設計變數 */
+/* 基於 Logo 的設計系統 */
 :root {
-  /* 主色調 - 暖粉藍 */
-  --primary: #A5C8F7;
-  --primary-hover: #8BB8F5;
+  /* 主色調 - 柔和天空藍（來自Logo背景） */
+  --primary: #9BB5D6;
+  --primary-hover: #8AA8CC;
+  --primary-light: #B8CCE8;
   
-  /* 輔助色 - 米白/奶油白 */
-  --background: #FEFCF9;
+  /* 輔助色 - 奶油白（來自Logo圖案） */
+  --background: #FEFCFA;
   --surface: #FFFFFF;
+  --cream: #F5F2ED;
   
-  /* 強調色 - 溫暖琥珀色 */
-  --accent: #FFBF69;
-  --accent-hover: #FFB356;
+  /* 強調色 - 溫暖粉色（愛心元素） */
+  --accent: #E8A5A5;
+  --accent-hover: #E39999;
   
   /* 文字顏色 */
-  --text-primary: #1F2937;
-  --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
+  --text-primary: #2D3748;
+  --text-secondary: #718096;
+  --text-muted: #A0AEC0;
   
   /* 邊框和分隔線 */
-  --border: #E5E7EB;
-  --border-light: #F3F4F6;
+  --border: #E2E8F0;
+  --border-light: #F7FAFC;
   
   /* 深色模式 */
-  --dark-background: #0F1419;
-  --dark-surface: #1A1F2E;
-  --dark-text-primary: #F9FAFB;
-  --dark-text-secondary: #D1D5DB;
-  --dark-border: #374151;
+  --dark-background: #1A202C;
+  --dark-surface: #2D3748;
+  --dark-text-primary: #F7FAFC;
+  --dark-text-secondary: #E2E8F0;
+  --dark-border: #4A5568;
 }
 
 /* 基礎重置 */
@@ -46,7 +48,7 @@ html, body {
 body {
   background: var(--background);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Inter', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
   line-height: 1.6;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -56,13 +58,13 @@ body {
   color: var(--dark-text-primary);
 }
 
-/* 現代簡約按鈕 */
+/* Logo 風格的按鈕系統 */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 2rem;
-  border-radius: 12px;
+  padding: 0.875rem 1.75rem;
+  border-radius: 16px;
   font-weight: 500;
   font-size: 0.95rem;
   text-decoration: none;
@@ -76,27 +78,31 @@ body {
 .btn-primary {
   background: var(--primary);
   color: white;
+  box-shadow: 0 2px 12px rgba(155, 181, 214, 0.3);
 }
 
 .btn-primary:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(155, 181, 214, 0.4);
 }
 
 .btn-secondary {
   background: var(--surface);
   color: var(--text-primary);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
 }
 
 .btn-secondary:hover {
-  background: var(--border-light);
+  background: var(--cream);
   border-color: var(--primary);
+  transform: translateY(-1px);
 }
 
 .btn-accent {
   background: var(--accent);
   color: white;
+  box-shadow: 0 2px 12px rgba(232, 165, 165, 0.3);
 }
 
 .btn-accent:hover {
@@ -108,44 +114,50 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
-/* 簡約卡片 */
+/* Logo 風格的卡片 */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 2rem;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .dark .card {
   background: var(--dark-surface);
   border-color: var(--dark-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .card-hover:hover {
-  border-color: var(--primary);
-  box-shadow: 0 4px 20px rgba(165, 200, 247, 0.1);
+  border-color: var(--primary-light);
+  box-shadow: 0 4px 20px rgba(155, 181, 214, 0.15);
+  transform: translateY(-2px);
 }
 
-/* 訊息氣泡 - 簡約版 */
+/* Logo 風格的訊息氣泡 */
 .message-self {
   background: var(--primary);
   color: white;
-  border-radius: 18px 18px 4px 18px;
-  padding: 0.875rem 1.25rem;
-  max-width: 80%;
+  border-radius: 20px 20px 6px 20px;
+  padding: 1rem 1.25rem;
+  max-width: 75%;
   margin-left: auto;
+  box-shadow: 0 2px 8px rgba(155, 181, 214, 0.3);
 }
 
 .message-other {
-  background: var(--surface);
+  background: var(--cream);
   color: var(--text-primary);
   border: 1px solid var(--border);
-  border-radius: 18px 18px 18px 4px;
-  padding: 0.875rem 1.25rem;
-  max-width: 80%;
+  border-radius: 20px 20px 20px 6px;
+  padding: 1rem 1.25rem;
+  max-width: 75%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .dark .message-other {
@@ -154,58 +166,65 @@ body {
   border-color: var(--dark-border);
 }
 
-/* 狀態指示器 */
+/* Logo 風格的狀態指示器 */
 .status-indicator {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 500;
+  background: var(--cream);
+  border: 1px solid var(--border);
 }
 
 .status-online {
-  background: #ECFDF5;
-  color: #065F46;
+  background: rgba(72, 187, 120, 0.1);
+  color: #2F855A;
+  border-color: rgba(72, 187, 120, 0.2);
 }
 
 .status-waiting {
-  background: #FFFBEB;
-  color: #92400E;
+  background: rgba(237, 137, 54, 0.1);
+  color: #C05621;
+  border-color: rgba(237, 137, 54, 0.2);
 }
 
 .status-offline {
-  background: var(--border-light);
+  background: var(--cream);
   color: var(--text-secondary);
+  border-color: var(--border);
 }
 
 .dark .status-online {
-  background: rgba(6, 95, 70, 0.2);
-  color: #6EE7B7;
+  background: rgba(72, 187, 120, 0.2);
+  color: #9AE6B4;
 }
 
 .dark .status-waiting {
-  background: rgba(146, 64, 14, 0.2);
-  color: #FCD34D;
+  background: rgba(237, 137, 54, 0.2);
+  color: #FBD38D;
 }
 
-/* 輸入框 */
+/* Logo 風格的輸入框 */
 .input {
   width: 100%;
   padding: 1rem 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
   background: var(--surface);
   color: var(--text-primary);
   font-size: 0.95rem;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(165, 200, 247, 0.1);
+  box-shadow: 0 0 0 3px rgba(155, 181, 214, 0.1);
+  background: white;
 }
 
 .input::placeholder {
@@ -218,11 +237,36 @@ body {
   color: var(--dark-text-primary);
 }
 
-.dark .input::placeholder {
-  color: var(--text-secondary);
+.dark .input:focus {
+  border-color: var(--primary);
+  background: var(--dark-surface);
 }
 
-/* 簡約動畫 */
+/* Logo 風格的圖標容器 */
+.icon-container {
+  background: var(--cream);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-container-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.icon-container-accent {
+  background: var(--accent);
+  color: white;
+}
+
+.dark .icon-container {
+  background: var(--dark-border);
+}
+
+/* 溫和的動畫效果 */
 .fade-in {
   animation: fadeIn 0.4s ease-out;
 }
@@ -231,9 +275,19 @@ body {
   animation: slideUp 0.3s ease-out;
 }
 
+.gentle-bounce {
+  animation: gentleBounce 2s infinite ease-in-out;
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { 
+    opacity: 0; 
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideUp {
@@ -247,7 +301,12 @@ body {
   }
 }
 
-/* 載入動畫 - 簡約版 */
+@keyframes gentleBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* Logo 風格的載入動畫 */
 .loading-dots {
   display: flex;
   gap: 0.5rem;
@@ -259,7 +318,7 @@ body {
   height: 8px;
   border-radius: 50%;
   background: var(--primary);
-  animation: loadingDot 1.5s infinite ease-in-out;
+  animation: loadingDot 1.4s infinite ease-in-out;
 }
 
 .loading-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -276,7 +335,7 @@ body {
   }
 }
 
-/* 文字樣式 */
+/* Logo 風格的漸變文字 */
 .text-gradient {
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   -webkit-background-clip: text;
@@ -285,18 +344,7 @@ body {
   color: transparent;
 }
 
-/* 間距系統 */
-.space-y-2 > * + * { margin-top: 0.5rem; }
-.space-y-3 > * + * { margin-top: 0.75rem; }
-.space-y-4 > * + * { margin-top: 1rem; }
-.space-y-6 > * + * { margin-top: 1.5rem; }
-.space-y-8 > * + * { margin-top: 2rem; }
-
-.space-x-2 > * + * { margin-left: 0.5rem; }
-.space-x-3 > * + * { margin-left: 0.75rem; }
-.space-x-4 > * + * { margin-left: 1rem; }
-
-/* 滾動條 - 簡約版 */
+/* 簡潔的滾動條 */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -311,23 +359,29 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--primary-light);
 }
 
 /* 響應式調整 */
 @media (max-width: 768px) {
   .btn {
-    padding: 0.625rem 1.5rem;
+    padding: 0.75rem 1.5rem;
     font-size: 0.9rem;
   }
   
   .card {
     padding: 1.5rem;
+    border-radius: 16px;
   }
   
   .message-self,
   .message-other {
     max-width: 85%;
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1rem;
+    border-radius: 16px 16px 6px 16px;
+  }
+  
+  .message-other {
+    border-radius: 16px 16px 16px 6px;
   }
 }

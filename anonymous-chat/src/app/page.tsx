@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import Logo from './components/Logo';
 
 interface Message {
   id: string;
@@ -112,12 +113,10 @@ export default function Home() {
         <div className="card fade-in">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                <span className="text-xl">💬</span>
-              </div>
+              <Logo size="md" />
               <div>
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Meco</h1>
-                <p className="text-sm text-gray-500">匿名聊天平台</p>
+                <p className="text-sm text-gray-500">溫暖的匿名聊天</p>
               </div>
             </div>
             
@@ -153,8 +152,8 @@ export default function Home() {
 
         {/* 錯誤提示 */}
         {errorMessage && (
-          <div className="card border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
-            <p className="text-yellow-800 dark:text-yellow-200">{errorMessage}</p>
+          <div className="card" style={{borderColor: 'rgba(237, 137, 54, 0.3)', backgroundColor: 'rgba(237, 137, 54, 0.05)'}}>
+            <p className="text-orange-700 dark:text-orange-300">{errorMessage}</p>
           </div>
         )}
 
@@ -164,14 +163,14 @@ export default function Home() {
             // 等待配對
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center space-y-6 fade-in">
-                <div className="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">🔍</span>
+                <div className="w-20 h-20 mx-auto icon-container-primary rounded-3xl gentle-bounce">
+                  <span className="text-3xl">🔍</span>
                 </div>
                 <div>
                   <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                    尋找聊天對象中
+                    尋找聊天夥伴中
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-400">正在為您匹配合適的聊天夥伴...</p>
+                  <p className="text-gray-600 dark:text-gray-400">正在為您匹配志同道合的聊天對象...</p>
                 </div>
                 <div className="loading-dots">
                   <div className="loading-dot"></div>
@@ -186,25 +185,31 @@ export default function Home() {
               {/* 聊天頭部 */}
               <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                    <span className="text-sm">👤</span>
+                  <div className="w-10 h-10 icon-container rounded-xl">
+                    <span className="text-lg">❤️</span>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900 dark:text-white">匿名用戶</h3>
-                    <p className="text-xs text-green-500">在線</p>
+                    <h3 className="font-medium text-gray-900 dark:text-white">匿名朋友</h3>
+                    <p className="text-xs text-green-500 flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      在線中
+                    </p>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">端到端加密</div>
+                <div className="text-xs text-gray-500 bg-gray-50 dark:bg-gray-800 px-3 py-1 rounded-full">
+                  🔒 端到端加密
+                </div>
               </div>
 
               {/* 訊息區域 */}
               <div className="flex-1 overflow-y-auto py-4 space-y-4">
                 {messages.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3">
-                      <span className="text-lg">💭</span>
+                  <div className="text-center py-16">
+                    <div className="w-16 h-16 mx-auto icon-container rounded-2xl mb-4">
+                      <span className="text-2xl">💭</span>
                     </div>
-                    <p className="text-gray-500">開始對話吧...</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">開始溫暖的對話</h3>
+                    <p className="text-gray-500">說聲哈囉，分享今天的心情吧</p>
                   </div>
                 ) : (
                   messages.map((message) => (
@@ -243,45 +248,44 @@ export default function Home() {
             // 歡迎頁面
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center space-y-8 fade-in max-w-lg">
-                <div className="w-20 h-20 mx-auto bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center">
-                  <span className="text-3xl">💬</span>
-                </div>
+                <Logo size="xl" className="mx-auto gentle-bounce" />
                 
                 <div className="space-y-4">
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                     歡迎來到 <span className="text-gradient">Meco</span>
                   </h1>
                   <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                    與來自世界各地的陌生人進行安全、匿名的對話。我們重視您的隱私，所有對話都經過加密保護。
+                    與世界各地的朋友進行溫暖、安全的匿名對話。
+                    在這裡，每一次相遇都是美好的開始。
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-8">
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-                      <span className="text-lg">🔒</span>
+                  <div className="text-center space-y-3">
+                    <div className="w-14 h-14 mx-auto icon-container rounded-2xl">
+                      <span className="text-xl">🔒</span>
                     </div>
                     <h3 className="font-medium text-gray-900 dark:text-white">完全匿名</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">無需註冊帳號</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">保護隱私，自由表達</p>
                   </div>
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-                      <span className="text-lg">⚡</span>
+                  <div className="text-center space-y-3">
+                    <div className="w-14 h-14 mx-auto icon-container-accent rounded-2xl">
+                      <span className="text-xl">⚡</span>
                     </div>
                     <h3 className="font-medium text-gray-900 dark:text-white">即時配對</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">快速找到聊天夥伴</p>
                   </div>
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-                      <span className="text-lg">🛡️</span>
+                  <div className="text-center space-y-3">
+                    <div className="w-14 h-14 mx-auto icon-container rounded-2xl">
+                      <span className="text-xl">❤️</span>
                     </div>
-                    <h3 className="font-medium text-gray-900 dark:text-white">安全對話</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">端到端加密</p>
+                    <h3 className="font-medium text-gray-900 dark:text-white">溫暖連結</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">真誠友善的交流</p>
                   </div>
                 </div>
 
                 <button onClick={startMatching} className="btn btn-primary text-lg px-8 py-3">
-                  開始聊天
+                  開始溫暖聊天
                 </button>
               </div>
             </div>

@@ -4,8 +4,8 @@ export default function Custom404() {
   return (
     <div className="min-h-screen p-6 lg:p-8 flex items-center justify-center">
       <div className="text-center space-y-8 fade-in max-w-md">
-        <div className="w-20 h-20 mx-auto bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center">
-          <span className="text-3xl">🚫</span>
+        <div className="w-24 h-24 mx-auto icon-container-accent rounded-3xl">
+          <span className="text-4xl">🚫</span>
         </div>
         
         <div className="space-y-4">
@@ -15,7 +15,7 @@ export default function Custom404() {
           </h2>
           <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
             看起來這個頁面在網路世界中迷路了。
-            不如來開始一場新的匿名聊天吧！
+            不如來 Meco 開始一場溫暖的匿名聊天吧！
           </p>
         </div>
         

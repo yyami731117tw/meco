@@ -87,10 +87,11 @@ body {
 
 /* 聊天輸入區域樣式 */
 .meco-chat-input-container {
-  background: rgba(253, 249, 246, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  @apply rounded-2xl p-4 border border-white/30 shadow-lg;
+  background: rgba(253, 249, 246, 0.95);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  @apply rounded-2xl p-4 border border-white/40 shadow-xl;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .meco-status {

@@ -21,15 +21,17 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isOnline, setIsOnline] = useState(false);
   const [partnerLeft, setPartnerLeft] = useState(false);
+  const [roomId, setRoomId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 保存聊天狀態到localStorage
-  const saveChatState = (messages: Message[], status: string, partnerLeft: boolean = false) => {
+  const saveChatState = (messages: Message[], status: string, partnerLeft: boolean = false, roomId: string | null = null) => {
     if (typeof window !== 'undefined') {
       const chatState = {
         messages,
         status,
         partnerLeft,
+        roomId,
         timestamp: Date.now()
       };
       localStorage.setItem('meco_chat_state', JSON.stringify(chatState));
@@ -49,6 +51,7 @@ export default function Home() {
           
           if (now - chatState.timestamp < oneDay) {
             setMessages(chatState.messages || []);
+            setRoomId(chatState.roomId);
             if (chatState.status === 'matched') {
               setStatus('matched');
             }
@@ -56,7 +59,7 @@ export default function Home() {
               setPartnerLeft(true);
               setErrorMessage('對方已離開聊天，您可以繼續查看聊天記錄');
             }
-            return true;
+            return { restored: true, roomId: chatState.roomId };
           } else {
             // 清除過期的聊天記錄
             localStorage.removeItem('meco_chat_state');
@@ -67,7 +70,7 @@ export default function Home() {
         }
       }
     }
-    return false;
+    return { restored: false, roomId: null };
   };
 
   // 清除聊天狀態
@@ -82,7 +85,7 @@ export default function Home() {
     const handleBeforeUnload = () => {
       if (status === 'matched' && messages.length > 0) {
         // 如果正在聊天中，保存狀態
-        saveChatState(messages, status, partnerLeft);
+        saveChatState(messages, status, partnerLeft, roomId);
         
         // 通知服務器用戶離開
         if (socket) {
@@ -99,13 +102,15 @@ export default function Home() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [status, messages, partnerLeft, socket]);
+  }, [status, messages, partnerLeft, socket, roomId]);
 
   // 初始化時恢復聊天狀態
   useEffect(() => {
-    const restored = restoreChatState();
+    const { restored, roomId: restoredRoomId } = restoreChatState();
     if (!restored) {
       setStatus('connecting');
+    } else {
+      setRoomId(restoredRoomId);
     }
   }, []);
 
@@ -173,11 +178,12 @@ export default function Home() {
         setErrorMessage('');
       });
 
-      socketInstance.on('matched', () => {
+      socketInstance.on('matched', (data: { roomId: string }) => {
         setStatus('matched');
         setErrorMessage('');
         setMessages([]);
         setPartnerLeft(false);
+        setRoomId(data.roomId);
         // 清除之前的聊天記錄，開始新對話
         clearChatState();
       });
@@ -211,7 +217,7 @@ export default function Home() {
           const newMessages = [...prev, systemMessage];
           // 保存狀態，標記對方已離開
           setTimeout(() => {
-            saveChatState(newMessages, 'matched', true);
+            saveChatState(newMessages, 'matched', true, roomId);
           }, 0);
           return newMessages;
         });
@@ -224,6 +230,18 @@ export default function Home() {
         setErrorMessage(error);
       });
 
+      socketInstance.on('reconnect_success', () => {
+        console.log('重新連接成功');
+        setIsOnline(true);
+        setErrorMessage('');
+      });
+
+      socketInstance.on('reconnect_failed', () => {
+        console.log('重新連接失敗');
+        setPartnerLeft(true);
+        setErrorMessage('無法重新連接到聊天室，對方可能已離開');
+      });
+
       setSocket(socketInstance);
     };
 
@@ -234,14 +252,14 @@ export default function Home() {
         socket.close();
       }
     };
-  }, []);
+  }, [roomId]);
 
   // 自動保存聊天記錄
   useEffect(() => {
     if (status === 'matched' && messages.length > 0) {
-      saveChatState(messages, status, partnerLeft);
+      saveChatState(messages, status, partnerLeft, roomId);
     }
-  }, [messages, status, partnerLeft]);
+  }, [messages, status, partnerLeft, roomId]);
 
   // 自動滾動到最新訊息
   useEffect(() => {
@@ -419,9 +437,9 @@ export default function Home() {
   // Meco 風格聊天頁面
   return (
     <div className="min-h-screen flex flex-col">
+      {/* 頂部狀態欄 */}
       <div className="p-4 lg:p-6">
         <div className="meco-container max-w-4xl">
-          {/* 頂部狀態欄 */}
           <div className="meco-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -433,14 +451,6 @@ export default function Home() {
               </div>
               
               <div className="flex items-center gap-4">
-                {/* 加密連線指示器 */}
-                <div className="flex items-center gap-2 text-green-600 text-sm">
-                  <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                  </div>
-                  <span className="font-medium">🔒 端對端加密</span>
-                </div>
-                
                 {status === 'matched' && (
                   <button onClick={leaveChat} className="meco-button-secondary text-sm">
                     離開聊天
@@ -452,89 +462,99 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 聊天區域 - 移除卡片限制 */}
-      <div className="flex-1 p-4 lg:p-6 pt-0">
-        <div className="meco-container max-w-4xl h-full">
-          <div className="h-full flex flex-col">
-            {/* 訊息列表 */}
-            <div className="flex-1 overflow-y-auto space-y-4 pb-6">
-              {messages.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="space-y-4">
-                    <div className="meco-icon-container meco-icon-primary mx-auto">
-                      <span>✨</span>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-700 mb-2">開始對話</h3>
-                      <p className="text-gray-600 text-sm">
-                        說聲哈囉，開始這段美好的相遇 ❤️
-                      </p>
+      {/* 聊天區域 - 佔滿剩餘空間 */}
+      <div className="flex-1 flex flex-col px-4 lg:px-6">
+        <div className="meco-container max-w-4xl flex-1 flex flex-col">
+          {/* 訊息列表 */}
+          <div className="flex-1 overflow-y-auto space-y-4 pb-6">
+            {messages.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="space-y-6">
+                  <div className="meco-icon-container meco-icon-primary mx-auto">
+                    <span>✨</span>
+                  </div>
+                  <div className="meco-card max-w-md mx-auto">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-medium text-gray-700 mb-2">加密連線完成，開始聊天吧！</h3>
+                          <p className="text-gray-600 text-sm">
+                            說聲哈囉，開始這段美好的相遇 ❤️
+                          </p>
+                      </div>
+                      <div className="flex items-center justify-center gap-2 text-green-600 text-sm">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span>端對端加密已啟用</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ) : (
-                messages.map((message) => (
-                  <div key={message.id} className={`flex ${
-                    message.isSystem ? 'justify-center' : message.isSelf ? 'justify-end' : 'justify-start'
-                  }`}>
-                    <div className={
-                      message.isSystem 
-                        ? 'meco-system-message' 
-                        : message.isSelf 
-                          ? 'meco-chat-bubble-self' 
-                          : 'meco-chat-bubble-other'
-                    }>
-                      <p className="mb-1">{message.text}</p>
-                      {!message.isSystem && (
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs opacity-60">
-                            {new Date(message.timestamp).toLocaleTimeString([], { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })}
-                          </p>
-                          {message.isSelf && (
-                            <div className="text-xs ml-2">
-                              {message.isRead ? (
-                                <span className="text-blue-500">✓✓</span>
-                              ) : (
-                                <span className="text-gray-400">✓</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
+              </div>
+            ) : (
+              messages.map((message) => (
+                <div key={message.id} className={`flex ${
+                  message.isSystem ? 'justify-center' : message.isSelf ? 'justify-end' : 'justify-start'
+                }`}>
+                  <div className={
+                    message.isSystem 
+                      ? 'meco-system-message' 
+                      : message.isSelf 
+                        ? 'meco-chat-bubble-self' 
+                        : 'meco-chat-bubble-other'
+                  }>
+                    <p className="mb-1">{message.text}</p>
+                    {!message.isSystem && (
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs opacity-60">
+                          {new Date(message.timestamp).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </p>
+                        {message.isSelf && (
+                          <div className="text-xs ml-2">
+                            {message.isRead ? (
+                              <span className="text-blue-500">✓✓</span>
+                            ) : (
+                              <span className="text-gray-400">✓</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                ))
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+                </div>
+              ))
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+      </div>
 
-            {/* 輸入區域 */}
-            <div className="meco-chat-input-container">
-              <form onSubmit={sendMessage} className="flex gap-3">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder={
-                    !isOnline ? "連線中斷..." 
-                    : partnerLeft ? "對方已離開聊天..." 
-                    : "輸入訊息..."
-                  }
-                  className="meco-input flex-1"
-                  disabled={!isOnline || partnerLeft}
-                />
-                <button
-                  type="submit"
-                  disabled={!inputMessage.trim() || !isOnline || partnerLeft}
-                  className="meco-button-primary px-6"
-                >
-                  發送
-                </button>
-              </form>
-            </div>
+      {/* 輸入區域 - 固定在底部 */}
+      <div className="p-4 lg:p-6">
+        <div className="meco-container max-w-4xl">
+          <div className="meco-chat-input-container">
+            <form onSubmit={sendMessage} className="flex gap-3">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder={
+                  !isOnline ? "連線中斷..." 
+                  : partnerLeft ? "對方已離開聊天..." 
+                  : "輸入訊息..."
+                }
+                className="meco-input flex-1"
+                disabled={!isOnline || partnerLeft}
+              />
+              <button
+                type="submit"
+                disabled={!inputMessage.trim() || !isOnline || partnerLeft}
+                className="meco-button-primary px-6"
+              >
+                發送
+              </button>
+            </form>
           </div>
         </div>
       </div>

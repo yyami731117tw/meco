@@ -41,6 +41,8 @@ export default function Home() {
   const [imageError, setImageError] = useState<string | null>(null);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [previewImg, setPreviewImg] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [hideAnnouncement, setHideAnnouncement] = useState(false);
 
   // 保存聊天狀態到localStorage
   const saveChatState = (messages: Message[], status: string, partnerLeft: boolean = false, roomId: string | null = null) => {
@@ -294,6 +296,11 @@ export default function Home() {
         setErrorMessage('無法重新連接到聊天室，對方可能已離開');
       });
 
+      socketInstance.on('announcement', (msg: string) => {
+        setAnnouncement(msg);
+        setHideAnnouncement(false);
+      });
+
       setSocket(socketInstance);
     };
 
@@ -438,6 +445,26 @@ export default function Home() {
     );
   };
 
+  // 取得公告
+  useEffect(() => {
+    fetch('/api/announcement')
+      .then(res => res.json())
+      .then(data => {
+        if (data.announcement) setAnnouncement(data.announcement);
+      });
+  }, []);
+
+  // 監聽 socket.io 公告
+  useEffect(() => {
+    if (!socket) return;
+    const handler = (msg: string) => {
+      setAnnouncement(msg);
+      setHideAnnouncement(false);
+    };
+    socket.on('announcement', handler);
+    return () => { socket.off('announcement', handler); };
+  }, [socket]);
+
   if (status === 'connecting') {
     return (
       <div className="min-h-screen p-6 lg:p-8 flex items-center justify-center">
@@ -482,7 +509,7 @@ export default function Home() {
 
             <div className="meco-card max-w-lg mx-auto">
               <div className="space-y-6">
-                <p className="text-lg text-gray-700 leading-relaxed text-center">
+                <p className="text-base text-gray-700 leading-relaxed text-center">
                   在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。
                 </p>
                 
@@ -564,6 +591,13 @@ export default function Home() {
   // Meco 風格聊天頁面
   return (
     <div className="min-h-screen flex flex-col">
+      {/* 公告橫幅 */}
+      {announcement && !hideAnnouncement && (
+        <div className="w-full bg-yellow-100 text-yellow-900 text-center py-2 px-4 text-sm font-medium flex items-center justify-center relative z-40">
+          <span className="truncate max-w-[90vw]">{announcement}</span>
+          <button onClick={() => setHideAnnouncement(true)} className="absolute right-4 top-1/2 -translate-y-1/2 text-yellow-700 hover:text-red-500 text-lg font-bold px-2">×</button>
+        </div>
+      )}
       {/* 頂部狀態欄 */}
       <div className="p-4 lg:p-6">
         <div className="meco-container max-w-4xl">

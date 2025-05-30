@@ -128,6 +128,25 @@ io.on('connection', (socket) => {
     }
   });
   
+  // 處理已讀確認
+  socket.on('message_read', (messageId) => {
+    console.log('已讀確認:', messageId);
+    
+    // 找到用戶所在的房間
+    let userRoom = null;
+    for (let [roomId, room] of activeRooms.entries()) {
+      if (room.users.includes(socket.id)) {
+        userRoom = roomId;
+        break;
+      }
+    }
+    
+    if (userRoom) {
+      // 通知房間中的其他用戶該訊息已被讀取
+      socket.to(userRoom).emit('message_read_confirm', messageId);
+    }
+  });
+  
   // 用戶離開配對或聊天
   socket.on('leave', () => {
     console.log('用戶主動離開:', socket.id);

@@ -366,8 +366,23 @@ export default function Home() {
 
   // 確認發送圖片
   const confirmSendImage = () => {
-    setImageToSend(previewImg);
-    setPreviewImg(null);
+    // 直接發送訊息
+    if (previewImg) {
+      sendMessageImg(previewImg);
+      setPreviewImg(null);
+    }
+  };
+  // 新增發送圖片訊息的函式
+  const sendMessageImg = (img: string) => {
+    if (!socket || !isOnline) return;
+    const message: Message = {
+      id: Date.now().toString(),
+      text: '',
+      isSelf: true,
+      timestamp: Date.now(),
+      imageUrl: img
+    };
+    socket.emit('message', message);
   };
   // 取消發送圖片
   const cancelSendImage = () => {
@@ -575,8 +590,8 @@ export default function Home() {
       </div>
 
       {/* 聊天區域 - 佔滿剩餘空間 */}
-      <div className="flex-1 flex flex-col px-4 lg:px-6">
-        <div className="meco-container max-w-4xl flex-1 flex flex-col sm:px-0 px-0">
+      <div className="flex-1 flex flex-col px-0 lg:px-6">
+        <div className="flex-1 flex flex-col w-full">
           {/* 訊息列表 */}
           <div className="flex-1 overflow-y-auto space-y-4 pb-6">
             {messages.length === 0 ? (
@@ -682,13 +697,14 @@ export default function Home() {
                   <circle cx="12" cy="13" r="3.5" />
                 </svg>
               </label>
+              {/* 圖片發送前預覽視窗 */}
               {previewImg && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-                  <div className="bg-white rounded-2xl p-6 shadow-2xl flex flex-col items-center max-w-[90vw]">
-                    <img src={previewImg} alt="預覽" className="max-w-[60vw] max-h-[60vh] rounded-xl border mb-4" />
-                    <div className="flex gap-4 mt-2">
-                      <button onClick={confirmSendImage} className="meco-button-primary px-8">發送</button>
-                      <button onClick={cancelSendImage} className="meco-button-secondary px-8">取消</button>
+                  <div className="bg-white rounded-2xl p-4 shadow-2xl flex flex-col items-center w-full max-w-none sm:max-w-[90vw]">
+                    <img src={previewImg} alt="預覽" className="w-full max-w-[360px] max-h-[60vh] rounded-xl border mb-4 object-contain" />
+                    <div className="flex flex-col gap-4 w-full mt-2">
+                      <button onClick={confirmSendImage} className="meco-button-primary w-full py-3 text-lg">發送</button>
+                      <button onClick={cancelSendImage} className="meco-button-secondary w-full py-3 text-lg">取消</button>
                     </div>
                   </div>
                 </div>

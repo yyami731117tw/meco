@@ -9,6 +9,7 @@ interface Message {
   text: string;
   isSelf: boolean;
   timestamp: number;
+  isSystem?: boolean;
 }
 
 export default function Home() {
@@ -95,8 +96,18 @@ export default function Home() {
       });
 
       socketInstance.on('partner_left', () => {
-        setStatus('idle');
-        setErrorMessage('對方已離開聊天');
+        // 添加系統訊息到聊天記錄
+        const systemMessage: Message = {
+          id: Date.now().toString(),
+          text: '對方已離開聊天室',
+          isSelf: false,
+          timestamp: Date.now(),
+          isSystem: true
+        };
+        setMessages(prev => [...prev, systemMessage]);
+        
+        // 不自動跳轉，讓用戶自己決定何時離開
+        setErrorMessage('對方已離開聊天，您可以繼續查看聊天記錄');
       });
 
       socketInstance.on('error', (error: string) => {
@@ -192,7 +203,7 @@ export default function Home() {
         <div className="meco-container">
           <div className="text-center space-y-12 max-w-2xl mx-auto meco-fade-in">
             <div className="space-y-8">
-              <Logo size="xl" className="mx-auto meco-float" style={{ transform: 'scale(2)' }} />
+              <Logo size="3xl" className="mx-auto meco-float" />
               <div className="space-y-6">
                 <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-700">
                   Meco
@@ -318,7 +329,7 @@ export default function Home() {
           </div>
 
           {/* 聊天區域 */}
-          <div className="meco-card">
+          <div className="meco-chat-card">
             <div className="h-[500px] flex flex-col">
               {/* 訊息列表 */}
               <div className="flex-1 overflow-y-auto space-y-4 mb-6">
@@ -338,15 +349,25 @@ export default function Home() {
                   </div>
                 ) : (
                   messages.map((message) => (
-                    <div key={message.id} className={`flex ${message.isSelf ? 'justify-end' : 'justify-start'}`}>
-                      <div className={message.isSelf ? 'meco-chat-bubble-self' : 'meco-chat-bubble-other'}>
+                    <div key={message.id} className={`flex ${
+                      message.isSystem ? 'justify-center' : message.isSelf ? 'justify-end' : 'justify-start'
+                    }`}>
+                      <div className={
+                        message.isSystem 
+                          ? 'meco-system-message' 
+                          : message.isSelf 
+                            ? 'meco-chat-bubble-self' 
+                            : 'meco-chat-bubble-other'
+                      }>
                         <p className="mb-1">{message.text}</p>
-                        <p className="text-xs opacity-60">
-                          {new Date(message.timestamp).toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </p>
+                        {!message.isSystem && (
+                          <p className="text-xs opacity-60">
+                            {new Date(message.timestamp).toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))

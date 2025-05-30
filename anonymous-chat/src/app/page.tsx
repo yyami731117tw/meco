@@ -15,57 +15,103 @@ export default function Home() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [status, setStatus] = useState<'idle' | 'waiting' | 'matched' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'waiting' | 'matched' | 'error' | 'connecting'>('connecting');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isOnline, setIsOnline] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 初始化 Socket.IO 連線
   useEffect(() => {
-    const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
+    // 檢查後端服務是否可用
+    const checkBackendHealth = async () => {
+      try {
+        await fetch(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
+          method: 'HEAD',
+          mode: 'no-cors'
+        });
+        return true;
+      } catch {
+        console.log('後端服務暫時不可用');
+        return false;
+      }
+    };
 
-    socketInstance.on('connect', () => {
-      console.log('已連線到伺服器');
-      setStatus('idle');
-    });
+    const initializeSocket = async () => {
+      const backendAvailable = await checkBackendHealth();
+      
+      if (!backendAvailable) {
+        setStatus('error');
+        setErrorMessage('聊天服務暫時維護中，請稍後再試');
+        setIsOnline(false);
+        return;
+      }
 
-    socketInstance.on('disconnect', () => {
-      console.log('與伺服器斷開連線');
-      setStatus('error');
-      setErrorMessage('連線中斷');
-    });
+      const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 5000,
+        transports: ['websocket', 'polling']
+      });
 
-    socketInstance.on('waiting', () => {
-      setStatus('waiting');
-      setErrorMessage('');
-    });
+      socketInstance.on('connect', () => {
+        console.log('已連線到伺服器');
+        setStatus('idle');
+        setIsOnline(true);
+        setErrorMessage('');
+      });
 
-    socketInstance.on('matched', () => {
-      setStatus('matched');
-      setErrorMessage('');
-      setMessages([]);
-    });
+      socketInstance.on('disconnect', (reason) => {
+        console.log('與伺服器斷開連線:', reason);
+        setStatus('error');
+        setIsOnline(false);
+        if (reason === 'io server disconnect') {
+          setErrorMessage('伺服器主動斷開連線');
+        } else {
+          setErrorMessage('連線中斷，正在嘗試重新連線...');
+        }
+      });
 
-    socketInstance.on('message', (message: Message) => {
-      setMessages(prev => [...prev, message]);
-    });
+      socketInstance.on('connect_error', (error) => {
+        console.log('連線錯誤:', error);
+        setStatus('error');
+        setIsOnline(false);
+        setErrorMessage('無法連接到聊天服務，請檢查網路連線');
+      });
 
-    socketInstance.on('partner_left', () => {
-      setStatus('idle');
-      setErrorMessage('對方已離開');
-    });
+      socketInstance.on('waiting', () => {
+        setStatus('waiting');
+        setErrorMessage('');
+      });
 
-    socketInstance.on('error', (error: string) => {
-      setErrorMessage(error);
-    });
+      socketInstance.on('matched', () => {
+        setStatus('matched');
+        setErrorMessage('');
+        setMessages([]);
+      });
 
-    setSocket(socketInstance);
+      socketInstance.on('message', (message: Message) => {
+        setMessages(prev => [...prev, message]);
+      });
+
+      socketInstance.on('partner_left', () => {
+        setStatus('idle');
+        setErrorMessage('對方已離開聊天');
+      });
+
+      socketInstance.on('error', (error: string) => {
+        setErrorMessage(error);
+      });
+
+      setSocket(socketInstance);
+    };
+
+    initializeSocket();
 
     return () => {
-      socketInstance.close();
+      if (socket) {
+        socket.close();
+      }
     };
   }, []);
 
@@ -77,7 +123,7 @@ export default function Home() {
   // 發送訊息
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputMessage.trim() || !socket) return;
+    if (!inputMessage.trim() || !socket || !isOnline) return;
 
     const message = {
       id: Date.now().toString(),
@@ -92,7 +138,10 @@ export default function Home() {
 
   // 開始配對
   const startMatching = () => {
-    if (!socket) return;
+    if (!socket || !isOnline) {
+      setErrorMessage('聊天服務暫時不可用，請稍後再試');
+      return;
+    }
     socket.emit('join');
     setStatus('waiting');
   };
@@ -105,7 +154,38 @@ export default function Home() {
     setMessages([]);
   };
 
-  if (status === 'idle') {
+  // 重新連線
+  const reconnect = () => {
+    setStatus('connecting');
+    setErrorMessage('');
+    window.location.reload();
+  };
+
+  if (status === 'connecting') {
+    return (
+      <div className="min-h-screen p-6 lg:p-8 flex items-center justify-center">
+        <div className="meco-container">
+          <div className="text-center space-y-8 meco-fade-in">
+            <div className="meco-card max-w-md mx-auto">
+              <div className="space-y-6">
+                <div className="meco-loading-dots">
+                  <div className="meco-loading-dot"></div>
+                  <div className="meco-loading-dot"></div>
+                  <div className="meco-loading-dot"></div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-meco-dark">連線中</h3>
+                  <p className="text-meco-dark/70">正在連接聊天服務...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'idle' || status === 'error') {
     // Meco 風格歡迎頁面
     return (
       <div className="min-h-screen p-6 lg:p-8 flex items-center justify-center">
@@ -163,12 +243,37 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <button 
-                  onClick={startMatching} 
-                  className="meco-button-primary w-full text-lg py-4"
-                >
-                  ❤️ 開始溫暖聊天
-                </button>
+                {status === 'error' ? (
+                  <div className="space-y-4">
+                    <div className="text-center p-4 bg-orange-50 rounded-xl border border-orange-200">
+                      <p className="text-orange-800 text-sm mb-2">😔 聊天服務暫時不可用</p>
+                      <p className="text-orange-600 text-xs">後端服務正在維護中，請稍後再試</p>
+                    </div>
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={reconnect} 
+                        className="meco-button-secondary flex-1"
+                      >
+                        🔄 重新連線
+                      </button>
+                      <button 
+                        onClick={startMatching} 
+                        className="meco-button-primary flex-1"
+                        disabled={!isOnline}
+                      >
+                        ❤️ {isOnline ? '開始聊天' : '服務維護中'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={startMatching} 
+                    className="meco-button-primary w-full text-lg py-4"
+                    disabled={!isOnline}
+                  >
+                    ❤️ {isOnline ? '開始溫暖聊天' : '連線中...'}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -203,6 +308,13 @@ export default function Home() {
                   <div className="w-2 h-2 rounded-full bg-current"></div>
                   <span>配對中</span>
                 </div>
+
+                <button 
+                  onClick={() => setStatus('idle')} 
+                  className="meco-button-secondary w-full"
+                >
+                  取消配對
+                </button>
               </div>
             </div>
           </div>
@@ -229,10 +341,10 @@ export default function Home() {
               
               <div className="flex items-center gap-4">
                 <div className={`meco-status ${
-                  status === 'matched' ? 'meco-status-online' : 'meco-status-offline'
+                  status === 'matched' && isOnline ? 'meco-status-online' : 'meco-status-offline'
                 }`}>
                   <div className="w-2 h-2 rounded-full bg-current"></div>
-                  <span>{status === 'matched' ? '已連線' : '離線'}</span>
+                  <span>{status === 'matched' && isOnline ? '已連線' : '離線'}</span>
                 </div>
                 
                 {status === 'matched' && (
@@ -287,12 +399,13 @@ export default function Home() {
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder="輸入訊息..."
+                  placeholder={isOnline ? "輸入訊息..." : "連線中斷..."}
                   className="meco-input flex-1"
+                  disabled={!isOnline}
                 />
                 <button
                   type="submit"
-                  disabled={!inputMessage.trim()}
+                  disabled={!inputMessage.trim() || !isOnline}
                   className="meco-button-primary px-6"
                 >
                   發送
@@ -303,10 +416,15 @@ export default function Home() {
 
           {/* 錯誤提示 */}
           {errorMessage && (
-            <div className="meco-card bg-red-50/80 border-red-200">
-              <p className="text-red-800 text-center text-sm">
-                {errorMessage}
-              </p>
+            <div className="meco-card bg-orange-50/80 border-orange-200">
+              <div className="flex items-center justify-between">
+                <p className="text-orange-800 text-sm">{errorMessage}</p>
+                {!isOnline && (
+                  <button onClick={reconnect} className="meco-button-secondary text-xs px-3 py-1">
+                    重新連線
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

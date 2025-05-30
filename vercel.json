@@ -1,9 +1,14 @@
 {
   "version": 2,
-  "builds": [
+  "buildCommand": "cd anonymous-chat && npm run build",
+  "devCommand": "cd anonymous-chat && npm run dev",
+  "installCommand": "cd anonymous-chat && npm install",
+  "outputDirectory": "anonymous-chat/.next",
+  "framework": "nextjs",
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/next"
+      "source": "/(.*)",
+      "destination": "/"
     }
   ]
 } 

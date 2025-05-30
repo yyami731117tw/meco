@@ -42,7 +42,7 @@ export default function Home() {
       setErrorMessage('');
     });
 
-    socketInstance.on('matched', ({ partnerId }) => {
+    socketInstance.on('matched', () => {
       setStatus('matched');
       setErrorMessage('');
       setMessages([]); // 清空舊訊息
@@ -107,14 +107,14 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       {/* 狀態列 */}
-      <div className="bg-white dark:bg-gray-800 p-4 shadow-md">
+      <div className="bg-white dark:bg-gray-800 p-4 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold text-gray-800 dark:text-white">匿名聊天</h1>
-          <div className="flex items-center gap-4">
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-white">匿名聊天</h1>
+          <div className="flex items-center gap-3">
             {status === 'matched' && (
               <button
                 onClick={leaveChat}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                className="px-3 py-1.5 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
               >
                 離開聊天
               </button>
@@ -122,7 +122,7 @@ export default function Home() {
             {status === 'idle' && (
               <button
                 onClick={startMatching}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
               >
                 開始配對
               </button>
@@ -133,7 +133,7 @@ export default function Home() {
 
       {/* 狀態提示 */}
       {errorMessage && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 text-sm" role="alert">
           <p>{errorMessage}</p>
         </div>
       )}
@@ -141,31 +141,31 @@ export default function Home() {
       {/* 聊天室 */}
       <div className="flex-1 overflow-hidden">
         {status === 'waiting' ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
+          <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-850">
+            <div className="text-center p-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">正在尋找聊天對象...</p>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">正在尋找聊天對象...</p>
             </div>
           </div>
         ) : status === 'matched' ? (
-          <div className="h-full flex flex-col">
+          <div className="h-full flex flex-col bg-gray-50 dark:bg-gray-850">
             {/* 訊息列表 */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${message.isSelf ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
+                    className={`max-w-[75%] rounded-lg p-3 text-sm break-words ${
                       message.isSelf
                         ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                     }`}
                   >
                     <p>{message.text}</p>
-                    <p className="text-xs mt-1 opacity-70">
-                      {new Date(message.timestamp).toLocaleTimeString()}
+                    <p className="text-xs mt-1 text-right opacity-80">
+                      {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 </div>
@@ -174,18 +174,18 @@ export default function Home() {
             </div>
 
             {/* 輸入框 */}
-            <form onSubmit={sendMessage} className="p-4 bg-white dark:bg-gray-800 border-t">
-              <div className="max-w-4xl mx-auto flex gap-4">
+            <form onSubmit={sendMessage} className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+              <div className="max-w-4xl mx-auto flex gap-3">
                 <input
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   placeholder="輸入訊息..."
-                  className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
                 >
                   發送
                 </button>
@@ -193,8 +193,8 @@ export default function Home() {
             </form>
           </div>
         ) : (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
+          <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-850">
+            <div className="text-center p-4">
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
                 歡迎來到匿名聊天
               </h2>
@@ -203,7 +203,7 @@ export default function Home() {
               </p>
               <button
                 onClick={startMatching}
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
               >
                 開始配對
               </button>

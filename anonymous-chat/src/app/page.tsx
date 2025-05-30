@@ -193,18 +193,22 @@ export default function Home() {
           <div className="text-center space-y-12 max-w-2xl mx-auto meco-fade-in">
             <div className="space-y-8">
               <Logo size="xl" className="mx-auto meco-float" />
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-700">
-                  陌生不等於距離，Match 也沒那麼難
+                  Meco
                 </h1>
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。
-                </p>
+                <h2 className="text-2xl md:text-3xl font-medium text-gray-600">
+                  陌生不等於距離，Match 也沒那麼難
+                </h2>
               </div>
             </div>
 
             <div className="meco-card max-w-lg mx-auto">
               <div className="space-y-8">
+                <p className="text-lg text-gray-700 leading-relaxed text-center">
+                  在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。
+                </p>
+                
                 <div className="grid grid-cols-1 gap-6">
                   <div className="meco-feature-card">
                     <div className="flex items-center gap-4">

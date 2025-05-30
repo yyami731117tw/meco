@@ -23,7 +23,7 @@ export default function Logo({ size = 'md', className = '' }: LogoProps) {
   return (
     <div className={`${sizeClasses[size]} ${className} relative flex items-center justify-center`}>
       <Image
-        src="/meco-logo.png"
+        src="/meco-logo.png.png"
         alt="Meco Logo"
         width={sizePixels[size]}
         height={sizePixels[size]}

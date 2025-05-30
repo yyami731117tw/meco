@@ -192,7 +192,7 @@ export default function Home() {
         <div className="meco-container">
           <div className="text-center space-y-12 max-w-2xl mx-auto meco-fade-in">
             <div className="space-y-8">
-              <Logo size="xl" className="mx-auto meco-float" />
+              <Logo size="xl" className="mx-auto meco-float" style={{ transform: 'scale(1.5)' }} />
               <div className="space-y-6">
                 <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-700">
                   Meco
@@ -204,48 +204,10 @@ export default function Home() {
             </div>
 
             <div className="meco-card max-w-lg mx-auto">
-              <div className="space-y-8">
+              <div className="space-y-6">
                 <p className="text-lg text-gray-700 leading-relaxed text-center">
                   在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。
                 </p>
-                
-                <div className="grid grid-cols-1 gap-6">
-                  <div className="meco-feature-card">
-                    <div className="flex items-center gap-4">
-                      <div className="meco-icon-container meco-icon-primary">
-                        <span>🔒</span>
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-semibold text-gray-700">完全匿名</h3>
-                        <p className="text-sm text-gray-600">保護隱私，自由表達真實想法</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="meco-feature-card">
-                    <div className="flex items-center gap-4">
-                      <div className="meco-icon-container meco-icon-accent">
-                        <span>⚡</span>
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-semibold text-gray-700">即時配對</h3>
-                        <p className="text-sm text-gray-600">智能匹配，快速找到聊天夥伴</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="meco-feature-card">
-                    <div className="flex items-center gap-4">
-                      <div className="meco-icon-container meco-icon-secondary">
-                        <span>💬</span>
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-semibold text-gray-700">安全對話</h3>
-                        <p className="text-sm text-gray-600">端到端加密，溫暖安全交流</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 
                 {status === 'error' ? (
                   <div className="space-y-4">
@@ -275,7 +237,7 @@ export default function Home() {
                     className="meco-button-primary w-full text-lg py-4"
                     disabled={!isOnline}
                   >
-                    ❤️ {isOnline ? '開始溫暖聊天' : '連線中...'}
+                    ❤️ {isOnline ? '開始聊天' : '連線中...'}
                   </button>
                 )}
               </div>

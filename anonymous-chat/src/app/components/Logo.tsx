@@ -1,11 +1,13 @@
 import Image from 'next/image';
+import { CSSProperties } from 'react';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  style?: CSSProperties;
 }
 
-export default function Logo({ size = 'md', className = '' }: LogoProps) {
+export default function Logo({ size = 'md', className = '', style }: LogoProps) {
   const sizeClasses = {
     sm: 'w-8 h-8',
     md: 'w-12 h-12',
@@ -21,7 +23,7 @@ export default function Logo({ size = 'md', className = '' }: LogoProps) {
   };
 
   return (
-    <div className={`${sizeClasses[size]} ${className} relative flex items-center justify-center`}>
+    <div className={`${sizeClasses[size]} ${className} relative flex items-center justify-center`} style={style}>
       <Image
         src="/meco-logo.png.png"
         alt="Meco Logo"

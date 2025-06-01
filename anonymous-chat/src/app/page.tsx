@@ -25,26 +25,30 @@ interface Stats {
 
 // 打字動畫 hook（支援 onDone callback）
 function useTypewriter(text: string, totalDuration = 10000, onDone?: () => void) {
-  console.log(text, totalDuration, 'typewriter called');
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
+  const iRef = useRef(0);
   useEffect(() => {
     setDisplayed('');
     setDone(false);
-    let i = 0;
+    iRef.current = 0;
+    if (!text) return;
     const speed = Math.max(30, Math.floor(totalDuration / text.length));
     const timer = setInterval(() => {
-      setDisplayed((prev) => prev + text[i]);
-      i++;
-      if (i >= text.length) {
-        clearInterval(timer);
-        setDone(true);
-        if (onDone) onDone();
-      }
+      setDisplayed(prev => {
+        const next = prev + text[iRef.current];
+        iRef.current++;
+        if (iRef.current >= text.length) {
+          clearInterval(timer);
+          setDone(true);
+          if (onDone) onDone();
+        }
+        return next;
+      });
     }, speed);
     return () => clearInterval(timer);
-  }, [text, totalDuration, onDone]);
-  return {displayed, done};
+  }, [text, totalDuration]);
+  return { displayed, done };
 }
 
 export default function Home() {
@@ -548,8 +552,6 @@ export default function Home() {
               <div className="space-y-6">
                 <p className="text-base text-gray-700 leading-relaxed text-center min-h-[3.5em]">
                   {homeDescTyped1}
-                  <span className="text-xs text-red-400">[{JSON.stringify(homeDescTyped1)}]</span>
-                  <span className="text-xs text-green-600">[{homeDesc1}]</span>
                   <span className={`inline-block w-2 align-bottom animate-blink ${homeDescDone1 && !showSecond ? 'opacity-0' : 'opacity-100'}`}>|</span>
                   <br />
                   {showSecond && (

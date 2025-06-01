@@ -23,6 +23,22 @@ interface Stats {
   }>;
 }
 
+// 打字動畫 hook
+function useTypewriter(text: string, speed = 40) {
+  const [displayed, setDisplayed] = useState('');
+  useEffect(() => {
+    setDisplayed('');
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplayed((prev) => prev + text[i]);
+      i++;
+      if (i >= text.length) clearInterval(timer);
+    }, speed);
+    return () => clearInterval(timer);
+  }, [text, speed]);
+  return displayed;
+}
+
 export default function Home() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -465,6 +481,10 @@ export default function Home() {
     return () => { socket.off('announcement', handler); };
   }, [socket]);
 
+  // 首頁打字動畫內容
+  const homeDesc = '在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。';
+  const homeDescTyped = useTypewriter(homeDesc, 36);
+
   // 狀態：加密連線動畫與等待配對
   if (status === 'connecting' || status === 'waiting') {
     return (
@@ -515,8 +535,8 @@ export default function Home() {
 
             <div className="meco-card-home meco-card max-w-lg mx-auto">
               <div className="space-y-6">
-                <p className="text-base text-gray-700 leading-relaxed text-center">
-                  在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。
+                <p className="text-base text-gray-700 leading-relaxed text-center min-h-[3.5em]">
+                  {homeDescTyped}
                 </p>
                 
                 {status === 'error' ? (
@@ -602,10 +622,6 @@ export default function Home() {
               <div className="text-center py-16 flex flex-col items-center justify-center gap-6">
                 <h3 className="text-lg font-medium text-gray-700 mb-2">加密連線完成，開始聊天吧！</h3>
                 <p className="text-gray-600 text-base">說聲哈囉，開始這段美好的相遇 ❤️</p>
-                <div className="flex items-center justify-center gap-2 text-green-600 text-sm mt-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span>端對端加密已啟用</span>
-                </div>
               </div>
             ) :
               messages.map((message) => (
@@ -693,11 +709,9 @@ export default function Home() {
               </label>
               {/* 圖片發送前預覽視窗 */}
               {previewImg && (
-                <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60">
-                  <div className="flex-1 flex flex-col items-center justify-center w-full max-w-none sm:max-w-[90vw] px-2">
-                    <img src={previewImg} alt="預覽" className="w-auto max-w-full max-h-[60vh] rounded-xl border mb-4 object-contain mx-auto" />
-                  </div>
-                  <div className="w-full max-w-[400px] px-4 pb-6 flex flex-col gap-4">
+                <div className="fixed inset-0 z-50 bg-black/60 meco-preview-modal">
+                  <img src={previewImg} alt="預覽" className="meco-preview-modal-img" />
+                  <div className="meco-preview-modal-btns">
                     <button onClick={confirmSendImage} className="meco-button-primary w-full py-3 text-lg">發送</button>
                     <button onClick={cancelSendImage} className="meco-button-secondary w-full py-3 text-lg">取消</button>
                   </div>

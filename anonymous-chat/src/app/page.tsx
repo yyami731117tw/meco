@@ -25,6 +25,7 @@ interface Stats {
 
 // 打字動畫 hook（支援 onDone callback）
 function useTypewriter(text: string, totalDuration = 10000, onDone?: () => void) {
+  console.log(text, totalDuration, 'typewriter called');
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
   useEffect(() => {
@@ -548,6 +549,7 @@ export default function Home() {
                 <p className="text-base text-gray-700 leading-relaxed text-center min-h-[3.5em]">
                   {homeDescTyped1}
                   <span className="text-xs text-red-400">[{JSON.stringify(homeDescTyped1)}]</span>
+                  <span className="text-xs text-green-600">[{homeDesc1}]</span>
                   <span className={`inline-block w-2 align-bottom animate-blink ${homeDescDone1 && !showSecond ? 'opacity-0' : 'opacity-100'}`}>|</span>
                   <br />
                   {showSecond && (

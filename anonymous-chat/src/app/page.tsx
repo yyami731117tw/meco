@@ -484,30 +484,6 @@ export default function Home() {
     );
   }
 
-  if (status === 'connecting') {
-    return (
-      <div className="min-h-screen p-6 lg:p-8 flex items-center justify-center">
-        <div className="meco-container">
-          <div className="text-center space-y-8 meco-fade-in">
-            <div className="meco-card max-w-md mx-auto">
-              <div className="space-y-6">
-                <div className="meco-loading-dots">
-                  <div className="meco-loading-dot"></div>
-                  <div className="meco-loading-dot"></div>
-                  <div className="meco-loading-dot"></div>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-700">連線中</h3>
-                  <p className="text-gray-600">正在連接聊天服務...</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (status === 'idle' || status === 'error') {
     // Meco 風格歡迎頁面
     return (
@@ -563,42 +539,6 @@ export default function Home() {
                     {isOnline ? '開始聊天' : '連線中...'}
                   </button>
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === 'waiting') {
-    // Meco 風格等待頁面
-    return (
-      <div className="min-h-screen p-6 lg:p-8 flex items-center justify-center">
-        <div className="meco-container">
-          <div className="text-center space-y-8 meco-fade-in">
-            <div className="meco-card max-w-md mx-auto">
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <div className="meco-loading-dots">
-                    <div className="meco-loading-dot"></div>
-                    <div className="meco-loading-dot"></div>
-                    <div className="meco-loading-dot"></div>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-semibold text-gray-700">配對中</h3>
-                    <p className="text-gray-600">
-                      別擔心，Meco 讓 Match 變得簡單又溫柔
-                    </p>
-                  </div>
-                </div>
-
-                <button 
-                  onClick={() => setStatus('idle')} 
-                  className="meco-button-secondary w-full"
-                >
-                  取消配對
-                </button>
               </div>
             </div>
           </div>

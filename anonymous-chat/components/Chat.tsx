@@ -55,7 +55,7 @@ const Chat: React.FC = () => {
       const message: Message = {
         id: Date.now().toString(),
         text,
-        senderId: socket.id,
+        senderId: socket.id!,
         timestamp: Date.now(),
         isSelf: true
       };

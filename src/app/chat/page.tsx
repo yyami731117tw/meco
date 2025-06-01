@@ -28,6 +28,7 @@ export default function ChatRoom() {
     socketRef.current.on('connect', () => {
       setIsConnected(true);
       socketRef.current?.emit('join');
+      socketRef.current?.emit('restore');
     });
 
     socketRef.current.on('waiting', () => {
@@ -44,6 +45,12 @@ export default function ChatRoom() {
 
     socketRef.current.on('partner_left', () => {
       setIsPartnerLeft(true);
+    });
+
+    socketRef.current.on('restore', (data: { messages: Message[], isWaiting: boolean, isPartnerLeft: boolean }) => {
+      setMessages(data.messages);
+      setIsWaiting(data.isWaiting);
+      setIsPartnerLeft(data.isPartnerLeft);
     });
 
     return () => {

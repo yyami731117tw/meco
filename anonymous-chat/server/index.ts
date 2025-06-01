@@ -2,7 +2,8 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import basicAuth from 'express-basic-auth';
+import { matchService } from './services/matchService';
+import { User } from './services/types';
 
 const app = express();
 app.use(cors());
@@ -121,11 +122,9 @@ io.on('connection', (socket) => {
 });
 
 // 管理員登入驗證
-app.use('/admin', basicAuth({
-  users: { 'admin': 'admin123' },
-  challenge: true,
-  realm: 'MecoAdmin',
-}) as any);
+app.use('/admin', (req, res) => {
+  res.status(403).json({ error: 'Access denied' });
+});
 
 let currentAnnouncement = '';
 

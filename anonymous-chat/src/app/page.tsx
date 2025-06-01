@@ -374,6 +374,9 @@ export default function Home() {
     socket.emit('message', message);
     setInputMessage('');
     setImageToSend(null);
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   // 圖片上傳狀態
@@ -606,7 +609,7 @@ export default function Home() {
         <div className="meco-container max-w-4xl">
           {renderStats()}
           <div className="meco-card">
-            <div className="flex items-center justify-between min-h-[2.5rem] sm:min-h-[3.5rem] py-2 sm:py-4">
+            <div className="flex items-center justify-between min-h-[1.6rem] sm:min-h-[2.5rem] py-1 sm:py-3">
               <div className="flex items-center gap-4">
                 <Logo size="md" />
                 <div className="block sm:hidden">
@@ -708,7 +711,7 @@ export default function Home() {
       <div className="p-0 lg:p-6 fixed bottom-0 left-0 right-0 w-full bg-transparent z-30">
         <div className="meco-container max-w-4xl px-0">
           <div className="meco-chat-input-container rounded-none border-0 shadow-none p-0 m-0 w-full">
-            <form onSubmit={sendMessage} className="flex gap-2 items-center w-full">
+            <form onSubmit={sendMessage} className="flex gap-2 items-center w-full meco-input-form-mobile">
               <label className="cursor-pointer bg-white border border-blue-200 p-2 rounded-full flex items-center justify-center w-9 h-9 min-w-0 min-h-0 shadow hover:bg-blue-50 transition" title="上傳圖片">
                 <input
                   type="file"
@@ -739,6 +742,7 @@ export default function Home() {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
+                onFocus={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
                 placeholder={
                   !isOnline ? "連線中斷..." 
                   : partnerLeft ? "對方已離開聊天..." 

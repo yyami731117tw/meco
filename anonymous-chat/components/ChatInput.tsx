@@ -16,10 +16,10 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled }) => {
     if (message.trim() && !disabled) {
       onSendMessage(message);
       setMessage('');
-      // 移除自動聚焦，讓鍵盤保持開啟
-      // if (inputRef.current) {
-      //   inputRef.current.focus();
-      // }
+      // 保持鍵盤開啟
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
   };
 
@@ -28,12 +28,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled }) => {
       onSubmit={handleSubmit} 
       className={`
         fixed bottom-0 left-0 right-0 
-        ${isMobile ? 'px-4 pb-4' : 'p-4'} 
+        ${isMobile ? 'px-0 pb-4' : 'p-4'} 
         bg-white dark:bg-gray-800 
         border-t border-gray-200 dark:border-gray-700
       `}
     >
-      <div className="flex gap-2 max-w-3xl mx-auto">
+      <div className="flex gap-2 max-w-3xl mx-auto px-4">
         <input
           ref={inputRef}
           type="text"

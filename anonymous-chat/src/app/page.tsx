@@ -356,24 +356,27 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 發送訊息
+  // 新增：處理鍵盤開啟時的滾動
+  const handleInputFocus = () => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  // 修改 sendMessage 函數
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!inputMessage.trim() && !imageToSend) || !socket || !isOnline) return;
-
-    const message: Message = {
-      id: Date.now().toString(),
-      text: inputMessage,
-      isSelf: true,
-      timestamp: Date.now(),
-    };
+    if (!inputMessage.trim() && !imageToSend) return;
+    
     if (imageToSend) {
-      message.imageUrl = imageToSend;
+      socket?.emit('sendImage', { imageUrl: imageToSend });
+      setImageToSend(null);
+    } else {
+      socket?.emit('sendMessage', { text: inputMessage });
+      setInputMessage('');
     }
-
-    socket.emit('message', message);
-    setInputMessage('');
-    setImageToSend(null);
+    
+    // 發送後保持鍵盤開啟並滾動到底部
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
@@ -742,7 +745,7 @@ export default function Home() {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onFocus={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                onFocus={handleInputFocus}
                 placeholder={
                   !isOnline ? "連線中斷..." 
                   : partnerLeft ? "對方已離開聊天..." 

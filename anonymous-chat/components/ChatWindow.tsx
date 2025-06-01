@@ -21,7 +21,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
       <div 
         className="
           flex-1 overflow-y-auto p-4 space-y-4
-          absolute top-[60px] left-0 right-0 bottom-[80px]
+          absolute top-[80px] left-0 right-0 bottom-[80px]
           md:relative md:top-0 md:bottom-0
         " 
         ref={messagesEndRef}

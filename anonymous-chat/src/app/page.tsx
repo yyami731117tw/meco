@@ -493,12 +493,9 @@ export default function Home() {
     return () => { socket.off('announcement', handler); };
   }, [socket]);
 
-  // 首頁打字動畫內容分段
-  const homeDesc1 = '在這裡可以與陌生人進行對話，分享想法，發現新的連結。';
-  const homeDesc2 = '每一次對話都是一次全新的體驗。';
-  const [showSecond, setShowSecond] = useState(false);
-  const {displayed: homeDescTyped1, done: homeDescDone1} = useTypewriter(homeDesc1, 6000, () => setTimeout(() => setShowSecond(true), 600));
-  const {displayed: homeDescTyped2, done: homeDescDone2} = useTypewriter(homeDesc2, 4000);
+  // 首頁打字動畫內容合併為一段
+  const homeDesc = '在這裡可以與陌生人進行對話，分享想法，發現新的連結。\n每一次對話都是一次全新的體驗。';
+  const { displayed: homeDescTyped, done: homeDescDone } = useTypewriter(homeDesc, 8000);
 
   // 狀態：加密連線動畫與等待配對
   if (status === 'connecting' || status === 'waiting') {
@@ -550,16 +547,9 @@ export default function Home() {
 
             <div className="meco-card-home meco-card max-w-lg mx-auto">
               <div className="space-y-6">
-                <p className="text-base text-gray-700 leading-relaxed text-center min-h-[3.5em]">
-                  {homeDescTyped1}
-                  <span className={`inline-block w-2 align-bottom animate-blink ${homeDescDone1 && !showSecond ? 'opacity-0' : 'opacity-100'}`}>|</span>
-                  <br />
-                  {showSecond && (
-                    <>
-                      {homeDescTyped2}
-                      <span className={`inline-block w-2 align-bottom animate-blink ${homeDescDone2 ? 'opacity-0' : 'opacity-100'}`}>|</span>
-                    </>
-                  )}
+                <p className="text-base text-gray-700 leading-relaxed text-center min-h-[3.5em]" style={{whiteSpace: 'pre-line'}}>
+                  {homeDescTyped}
+                  <span className={`inline-block w-2 align-bottom animate-blink ${homeDescDone ? 'opacity-0' : 'opacity-100'}`}>|</span>
                 </p>
                 
                 {status === 'error' ? (

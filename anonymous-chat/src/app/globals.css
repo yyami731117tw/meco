@@ -248,13 +248,13 @@ body {
     border-radius: 0;
     box-shadow: none;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0.5rem !important;
     width: 100vw !important;
     left: 0;
     right: 0;
-    position: fixed;
-    bottom: 0;
     background: rgba(253, 249, 246, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
   }
   .sticky {
     width: 100vw !important;
@@ -264,38 +264,18 @@ body {
     margin: 0 !important;
     padding: 0 !important;
   }
-  .meco-chat-bubble-self, .meco-chat-bubble-other {
-    max-width: 98vw;
-    border-radius: 1.2rem;
-    margin-left: 0;
-    margin-right: 0;
-    font-size: 1.08rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+  /* 減少 header 高度 */
+  .sticky .meco-card {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
   }
-  .meco-system-message {
-    max-width: 90vw;
-    font-size: 0.95rem;
+  .sticky .meco-card .flex {
+    min-height: 2rem !important;
   }
-  .meco-button-primary, .meco-button-secondary {
-    font-size: 1.08rem;
-    min-height: 48px;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-  }
-  .meco-input {
-    font-size: 1.08rem;
-    min-height: 48px;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-  }
+  /* 調整輸入區域間距 */
   .meco-chat-input-container form {
     gap: 0.5rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    box-sizing: border-box;
+    padding: 0 0.5rem;
   }
   .meco-chat-input-container label {
     min-width: 44px;

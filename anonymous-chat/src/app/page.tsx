@@ -366,16 +366,23 @@ export default function Home() {
       text: inputMessage,
       isSelf: true,
       timestamp: Date.now(),
+      isRead: false
     };
+    
     if (imageToSend) {
       message.imageUrl = imageToSend;
     }
 
     socket.emit('message', message);
+    setMessages(prev => [...prev, message]);
     setInputMessage('');
     setImageToSend(null);
+    
+    // 保持鍵盤開啟並滾動到最新訊息
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
     }, 100);
   };
 
@@ -605,11 +612,11 @@ export default function Home() {
         </div>
       )}
       {/* 頂部狀態欄 */}
-      <div className="p-3 lg:p-4 sticky top-0 z-30 bg-gradient-to-b from-white/90 to-transparent backdrop-blur-md">
+      <div className="p-4 lg:p-6 sticky top-0 z-30 bg-gradient-to-b from-white/90 to-transparent backdrop-blur-md">
         <div className="meco-container max-w-4xl">
           {renderStats()}
           <div className="meco-card">
-            <div className="flex items-center justify-between min-h-[1.05rem] sm:min-h-[1.67rem] py-0.5 sm:py-2">
+            <div className="flex items-center justify-between min-h-[2.5rem] sm:min-h-[3.5rem] py-2 sm:py-4">
               <div className="flex items-center gap-4">
                 <Logo size="md" />
                 <div className="block sm:hidden">
@@ -632,7 +639,7 @@ export default function Home() {
       </div>
 
       {/* 聊天區域 - 佔滿剩餘空間 */}
-      <div className="flex-1 flex flex-col px-0 lg:px-6">
+      <div className="flex-1 flex flex-col px-0 lg:px-6 pb-[60px] sm:pb-0">
         <div className="flex-1 flex flex-col w-full">
           {/* 訊息列表 */}
           <div className="flex-1 overflow-y-auto space-y-4 pb-6">
@@ -711,7 +718,7 @@ export default function Home() {
       <div className="p-0 lg:p-6 fixed bottom-0 left-0 right-0 w-full bg-transparent z-30">
         <div className="meco-container max-w-4xl px-0">
           <div className="meco-chat-input-container rounded-none border-0 shadow-none p-0 m-0 w-full">
-            <form onSubmit={sendMessage} className="flex gap-2 items-center w-full meco-input-form-mobile px-2 py-2 sm:px-4 sm:py-3">
+            <form onSubmit={sendMessage} className="flex gap-2 items-center w-full">
               <label className="cursor-pointer bg-white border border-blue-200 p-2 rounded-full flex items-center justify-center w-9 h-9 min-w-0 min-h-0 shadow hover:bg-blue-50 transition" title="上傳圖片">
                 <input
                   type="file"
@@ -742,7 +749,6 @@ export default function Home() {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onFocus={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
                 placeholder={
                   !isOnline ? "連線中斷..." 
                   : partnerLeft ? "對方已離開聊天..." 

@@ -807,12 +807,3 @@ export default function Home() {
   );
 }
 
-/* 加密連線動畫 bounce */
-<style jsx global>{`
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
-}
-.animate-bounce { animation: bounce 1s infinite; }
-`}</style>
-

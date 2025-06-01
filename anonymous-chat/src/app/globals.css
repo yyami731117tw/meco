@@ -205,6 +205,12 @@ body {
   }
 }
 
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.animate-bounce { animation: bounce 1s infinite; }
+
 /* 自定義滾動條 */
 ::-webkit-scrollbar {
   width: 6px;
@@ -221,4 +227,66 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(155, 181, 214, 0.5);
+}
+
+@media (max-width: 640px) {
+  .meco-card {
+    border-radius: 0;
+    box-shadow: none;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .meco-chat-input-container {
+    border-radius: 0;
+    box-shadow: none;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .meco-chat-bubble-self, .meco-chat-bubble-other {
+    max-width: 98vw;
+    border-radius: 1.2rem;
+    margin-left: 0;
+    margin-right: 0;
+    font-size: 1.08rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .meco-system-message {
+    max-width: 90vw;
+    font-size: 0.95rem;
+  }
+  .meco-button-primary, .meco-button-secondary {
+    font-size: 1.08rem;
+    min-height: 48px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  .meco-input {
+    font-size: 1.08rem;
+    min-height: 48px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  .meco-chat-input-container form {
+    gap: 0.5rem;
+  }
+  .meco-chat-input-container label {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .meco-chat-input-container svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+  .meco-chat-input-container img {
+    max-width: 60px;
+    max-height: 60px;
+  }
+  .img-error-msg {
+    font-size: 0.95rem;
+  }
 }

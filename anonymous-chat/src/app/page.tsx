@@ -606,14 +606,16 @@ export default function Home() {
         <div className="meco-container max-w-4xl">
           {renderStats()}
           <div className="meco-card">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between min-h-[2.5rem] sm:min-h-[3.5rem] py-2 sm:py-4">
               <div className="flex items-center gap-4">
                 <Logo size="md" />
+                <div className="block sm:hidden">
+                  <h2 className="font-semibold text-gray-700 text-base">Meco</h2>
+                </div>
                 <div className="hidden sm:block">
                   <h2 className="font-semibold text-gray-700">Meco</h2>
                 </div>
               </div>
-              
               <div className="flex items-center gap-4">
                 {status === 'matched' && (
                   <button onClick={leaveChat} className="meco-button-secondary text-sm">
@@ -703,10 +705,10 @@ export default function Home() {
       </div>
 
       {/* 輸入區域 - 固定在底部 */}
-      <div className="p-4 lg:p-6">
-        <div className="meco-container max-w-4xl">
-          <div className="meco-chat-input-container sm:mx-0 mx-[-1rem]">
-            <form onSubmit={sendMessage} className="flex gap-3 items-center">
+      <div className="p-0 lg:p-6 fixed bottom-0 left-0 right-0 w-full bg-transparent z-30">
+        <div className="meco-container max-w-4xl px-0">
+          <div className="meco-chat-input-container rounded-none border-0 shadow-none p-0 m-0 w-full">
+            <form onSubmit={sendMessage} className="flex gap-2 items-center w-full">
               <label className="cursor-pointer bg-white border border-blue-200 p-2 rounded-full flex items-center justify-center w-9 h-9 min-w-0 min-h-0 shadow hover:bg-blue-50 transition" title="上傳圖片">
                 <input
                   type="file"

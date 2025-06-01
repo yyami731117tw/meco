@@ -211,6 +211,12 @@ body {
 }
 .animate-bounce { animation: bounce 1s infinite; }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-blink { animation: blink 1s steps(1) infinite; }
+
 /* 自定義滾動條 */
 ::-webkit-scrollbar {
   width: 6px;
@@ -241,10 +247,19 @@ body {
   .meco-chat-input-container {
     border-radius: 0;
     box-shadow: none;
-    margin-left: -1rem;
-    margin-right: -1rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    left: 0;
+    right: 0;
+  }
+  .sticky {
+    width: 100vw !important;
+    left: 0;
+    right: 0;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .meco-chat-bubble-self, .meco-chat-bubble-other {
     max-width: 98vw;
@@ -288,6 +303,30 @@ body {
   }
   .img-error-msg {
     font-size: 0.95rem;
+  }
+  /* 預覽彈窗內容置中，按鈕永遠可見 */
+  .meco-preview-modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100vw;
+    padding: 0;
+  }
+  .meco-preview-modal-img {
+    max-width: 90vw;
+    max-height: 60vh;
+    margin-bottom: 1.5rem;
+    object-fit: contain;
+  }
+  .meco-preview-modal-btns {
+    width: 100vw;
+    max-width: 320px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 }
 

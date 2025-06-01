@@ -24,19 +24,25 @@ interface Stats {
 }
 
 // 打字動畫 hook
-function useTypewriter(text: string, speed = 40) {
+function useTypewriter(text: string, totalDuration = 10000) {
   const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
   useEffect(() => {
     setDisplayed('');
+    setDone(false);
     let i = 0;
+    const speed = Math.max(30, Math.floor(totalDuration / text.length));
     const timer = setInterval(() => {
       setDisplayed((prev) => prev + text[i]);
       i++;
-      if (i >= text.length) clearInterval(timer);
+      if (i >= text.length) {
+        clearInterval(timer);
+        setDone(true);
+      }
     }, speed);
     return () => clearInterval(timer);
-  }, [text, speed]);
-  return displayed;
+  }, [text, totalDuration]);
+  return {displayed, done};
 }
 
 export default function Home() {
@@ -483,7 +489,7 @@ export default function Home() {
 
   // 首頁打字動畫內容
   const homeDesc = '在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。';
-  const homeDescTyped = useTypewriter(homeDesc, 36);
+  const {displayed: homeDescTyped, done: homeDescDone} = useTypewriter(homeDesc, 10000);
 
   // 狀態：加密連線動畫與等待配對
   if (status === 'connecting' || status === 'waiting') {
@@ -537,6 +543,7 @@ export default function Home() {
               <div className="space-y-6">
                 <p className="text-base text-gray-700 leading-relaxed text-center min-h-[3.5em]">
                   {homeDescTyped}
+                  <span className={`inline-block w-2 align-bottom animate-blink ${homeDescDone ? 'opacity-0' : 'opacity-100'}`}>|</span>
                 </p>
                 
                 {status === 'error' ? (

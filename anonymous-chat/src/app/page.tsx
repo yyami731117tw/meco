@@ -465,11 +465,11 @@ export default function Home() {
     return () => { socket.off('announcement', handler); };
   }, [socket]);
 
-  // 狀態：加密連線動畫
+  // 狀態：加密連線動畫與等待配對
   if (status === 'connecting' || status === 'waiting') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white">
-        <div className="flex flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-8 w-full">
           <div className="flex gap-2">
             <span className="block w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
             <span className="block w-3 h-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
@@ -479,6 +479,17 @@ export default function Home() {
             <h3 className="text-xl font-semibold text-gray-700 mb-2">正在建立加密連線...</h3>
             <p className="text-gray-500 text-base">請稍候，Meco 正在為你配對安全的聊天對象</p>
           </div>
+          {status === 'waiting' && (
+            <button
+              onClick={() => {
+                if (socket) socket.emit('leave');
+                setStatus('idle');
+              }}
+              className="meco-button-secondary mt-4 px-8 py-3 text-lg"
+            >
+              取消配對
+            </button>
+          )}
         </div>
       </div>
     );
@@ -502,7 +513,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="meco-card max-w-lg mx-auto">
+            <div className="meco-card-home meco-card max-w-lg mx-auto">
               <div className="space-y-6">
                 <p className="text-base text-gray-700 leading-relaxed text-center">
                   在這裡，你可以與陌生人進行匿名對話，分享想法，發現新的連結。每一次對話都是一次全新的體驗。
@@ -558,7 +569,7 @@ export default function Home() {
         </div>
       )}
       {/* 頂部狀態欄 */}
-      <div className="p-4 lg:p-6">
+      <div className="p-4 lg:p-6 sticky top-0 z-30 bg-gradient-to-b from-white/90 to-transparent backdrop-blur-md">
         <div className="meco-container max-w-4xl">
           {renderStats()}
           <div className="meco-card">

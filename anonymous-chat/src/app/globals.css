@@ -290,3 +290,23 @@ body {
     font-size: 0.95rem;
   }
 }
+
+.meco-card-home {
+  background: rgba(253, 249, 246, 0.5) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 2px 16px #0001 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+@media (max-width: 640px) {
+  .meco-card-home {
+    border-radius: 1.2rem !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}

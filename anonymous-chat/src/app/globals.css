@@ -248,13 +248,13 @@ body {
     border-radius: 0;
     box-shadow: none;
     margin: 0 !important;
-    padding: 0.5rem !important;
+    padding: 0 !important;
     width: 100vw !important;
     left: 0;
     right: 0;
+    position: fixed;
+    bottom: 0;
     background: rgba(253, 249, 246, 0.95);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
   }
   .sticky {
     width: 100vw !important;
@@ -262,7 +262,7 @@ body {
     right: 0;
     border-radius: 0 !important;
     margin: 0 !important;
-    padding: 0.5rem !important;
+    padding: 0 !important;
   }
   .meco-chat-bubble-self, .meco-chat-bubble-other {
     max-width: 98vw;
@@ -295,6 +295,7 @@ body {
     padding-right: 0.5rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+    box-sizing: border-box;
   }
   .meco-chat-input-container label {
     min-width: 44px;
@@ -334,23 +335,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-  }
-  /* 新增：調整 header 高度 */
-  .meco-card > div {
-    min-height: 1.2rem !important;
-    padding: 0.25rem 0 !important;
-  }
-  /* 新增：調整輸入區域在鍵盤開啟時的樣式 */
-  .meco-chat-input-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-  }
-  /* 新增：確保聊天內容在鍵盤開啟時可見 */
-  .flex-1.overflow-y-auto {
-    padding-bottom: 4rem;
   }
 }
 

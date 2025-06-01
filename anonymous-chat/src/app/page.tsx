@@ -492,8 +492,8 @@ export default function Home() {
   const homeDesc1 = '在這裡可以與陌生人進行對話，分享想法，發現新的連結。';
   const homeDesc2 = '每一次對話都是一次全新的體驗。';
   const [showSecond, setShowSecond] = useState(false);
-  const {displayed: homeDescTyped1, done: homeDescDone1} = useTypewriter(homeDesc1, 4500, () => setTimeout(() => setShowSecond(true), 500));
-  const {displayed: homeDescTyped2, done: homeDescDone2} = useTypewriter(homeDesc2, 3500);
+  const {displayed: homeDescTyped1, done: homeDescDone1} = useTypewriter(homeDesc1, 6000, () => setTimeout(() => setShowSecond(true), 600));
+  const {displayed: homeDescTyped2, done: homeDescDone2} = useTypewriter(homeDesc2, 4000);
 
   // 狀態：加密連線動畫與等待配對
   if (status === 'connecting' || status === 'waiting') {
@@ -547,6 +547,7 @@ export default function Home() {
               <div className="space-y-6">
                 <p className="text-base text-gray-700 leading-relaxed text-center min-h-[3.5em]">
                   {homeDescTyped1}
+                  <span className="text-xs text-red-400">[{JSON.stringify(homeDescTyped1)}]</span>
                   <span className={`inline-block w-2 align-bottom animate-blink ${homeDescDone1 && !showSecond ? 'opacity-0' : 'opacity-100'}`}>|</span>
                   <br />
                   {showSecond && (
